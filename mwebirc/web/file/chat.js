@@ -180,7 +180,7 @@ function change_nick(oldnick, newnick) {
             if (name.nick.toLowerCase() === parsed.toLowerCase()) {
                 var host = name.host;
                 if (is_channel(channel)) {
-                    let i = elem.nicks.findIndex(data => data.nick === oldnick);
+                    let i = elem.nicks.findIndex(data => data.nick === parsed);
                     elem.nicks.splice(i, 1, {
                         nick: parsed2,
                         host: host
@@ -189,6 +189,7 @@ function change_nick(oldnick, newnick) {
                     render_userlist(channel);
                 }
                 parse_pages(get_timestamp() + "  <span style=\"color: #ff0000\">==</span> " + parsed + " has changed his nick to " + newnick + "<br>\n", channel);
+                break;
             }
         }
     }
@@ -442,18 +443,17 @@ function parse_pages2(text, cnt) {
 }
 
 function parse_pages(text, pg) {
-    for (let i = 0; i < cw.length; i++) {
-        if (cw[i].page.toLowerCase() === pg.toLowerCase()) {
-            cw[i].elem.innerHTML += text;
-            console.log(pg + ": " + text);
+    for (const elem of cw) {
+        if (elem.page.toLowerCase() === pg.toLowerCase()) {
+            elem.elem.innerHTML += text;
             return;
         }
     }
 }
 
 function parse_page(text) {
-    for (let i = 0; i < cw.length; i++) {
-        cw[i].elem.innerHTML += text;
+    for (const elem of cw) {
+        elem.elem.innerHTML += text;
     }
 }
 
