@@ -389,22 +389,14 @@ html {
 
 
 #pagecontent {
-
     font-size: 12px;
-    width: 100%;
-    left: 0px;
-    top: 0px;
-    text-align: left;
-    background-color: #ffffff;
-    border-color: #000000;
-    border-right-width: 1px;
-    border-top-width: 1px;
-    border-bottom-width: 1px;
-    border-left-width: 1px;
-    border-style: solid;
-    margin: 3px;
-    padding: 3px;
-
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 30em;
+    height: 20em;
+    margin-left: -15em;
+    margin-top: -10em
 }
 
 #profilecontent {

@@ -20,6 +20,7 @@
         <script src="file/jquery.js"></script>
         <script src="file/popper/js/popper.min.js"></script>
         <script src="file/bootstrap/js/bootstrap.min.js"></script>
- 
+
     </head>
     <body>
+        <div id="pagecontent">
