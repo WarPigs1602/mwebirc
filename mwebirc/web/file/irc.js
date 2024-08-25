@@ -119,6 +119,13 @@ function get_numerics(text) {
         if (arr[1] === "317") {
             output = aw;
             return " <span style=\"color: #ff0000\">==</span> &nbsp;idle : " + arr[4] + " seconds idle [connected " + get_date(arr[5] * 1000) + "]";
+        } else
+        if (arr[1] === "321" || arr[1] === "322" || arr[1] === "323" || arr[1] === "396" || arr[1] === "403" || arr[1] === "381") {
+            output = aw;
+            for (var i = 3; i < arr.length; i++) {
+                parsed += " " + arr[i];
+            }
+            return " <span style=\"color: #ff0000\">==</span> " + parsed.trim();
         }
         if (arr[1].startsWith("3")) {
             output = aw;
@@ -156,7 +163,7 @@ function get_numerics(text) {
         }
         if (arr[2] === nick) {
             output = "Status";
-            if(login && chan.length !== 0) {
+            if (login && chan.length !== 0) {
                 submitTextMessage("/join " + parse_channels(chan));
                 login = false;
             }

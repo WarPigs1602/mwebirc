@@ -70,7 +70,6 @@ function set_host(channel, nick, host) {
                         nick: parsed,
                         host: host
                     });
-                    console.log(nick + "!" + host);
                     return;
                 }
             }

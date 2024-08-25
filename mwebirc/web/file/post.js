@@ -56,7 +56,6 @@ function sendText() {
     messageCounter = -1;
     if (message.value != "") {
         submitText();
-        $('body > .popover').popover('hide');
     }
     clearMessage();
 }
@@ -101,7 +100,7 @@ function parseText(text) {
             text = "/privmsg " + aw + " " + text;
             add_window();
         } else {
-        get_timestamp()    
+            get_timestamp();
             parse_output("*** You must start with / in the status window");
             add_window();
             return null;
