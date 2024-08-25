@@ -11,6 +11,11 @@ var socket = new WebSocket(location.origin.replace(/^http/, 'ws') + "/mwebirc/We
 var login = true;
 nv.innerHTML = '';
 add_page('Status', 'status', true);
+parse_page(get_timestamp() + " mwebirc 1.0<br>\n");
+parse_page(get_timestamp() + " &copy; 2024 by Andreas Pschorn<br>\n");
+parse_page(get_timestamp() + " <a href=\"https://github.com/WarPigs1602/mwebirc\" target=\"_blank\">https://github.com/WarPigs1602/mwebirc</a><br>\n");
+parse_page(get_timestamp() + " Licensed under the MIT License<br>\n");
+parse_page(get_timestamp() + " <span style=\"color: #ff0000\">==</span> Connecting to server, please wait...<br>\n");
 
 function get_user() {
     return user;
@@ -254,7 +259,7 @@ function parse_frame(channel, type) {
     const right = document.querySelectorAll(".right_frame");
     const cf = document.querySelectorAll(".chat_frame");
     const tf = document.querySelectorAll(".topic_frame");
-    if (type !== "channel") {
+    if (type !== "channel" || !window.matchMedia("(min-width: 600px)").matches) {
         for (const frame of right) {
             frame.style.cssText = 'display: none;';
         }

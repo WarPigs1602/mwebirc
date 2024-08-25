@@ -30,6 +30,11 @@ function get_numerics(text) {
             parsed += " " + arr[i];
         }
         output = "Status";
+        if (parsed.trim() === "*** (mwebirc) Found your hostname." || parsed.trim() === "*** (mwebirc) No hostname found.") {
+            parse_page(get_timestamp() + " <span style=\"color: #ff0000\">==</span> " + parsed.trim() + "<br>\n");
+            parse_page(get_timestamp() + " <span style=\"color: #ff0000\">==</span> Logging in, please wait...<br>\n");
+            return null;
+        }
         return " <span style=\"color: #ff0000\">==</span> " + parsed.trim();
     } else if (arr[1].match(regex)) {
         var parsed = "";
@@ -75,31 +80,37 @@ function get_numerics(text) {
             for (var i = 7; i < arr.length; i++) {
                 parsed += " " + arr[i];
             }
-            return " <span style=\"color: #ff0000\">==</span> <span style\"font-weigth: bold\">" + nick + "</span> [" + host + "]<br>\n" + get_timestamp() + " <span style=\"color: #ff0000\">==</span> &nbsp;realname : " + parsed.trim();
-            ;
+            return " <span style=\"color: #ff0000\">==</span> <span style\"font-weight: bold;\">" + nick + "</span> [" + host + "]<br>\n" + get_timestamp() + " <span style=\"color: #ff0000\">==</span> <p style=\"width: 80px; display: inline-block;\">&nbsp;realname</p> : " + parsed.trim();
         } else
         if (arr[1] === "319") {
             output = aw;
+            var channels = new Array();
             for (var i = 4; i < arr.length; i++) {
-                parsed += " " + arr[i];
+                channels.push(arr[i]);
             }
-            return " <span style=\"color: #ff0000\">==</span> &nbsp;channels : " + parsed.trim();
-            ;
+            channels.sort(function (a, b) {
+                return a.toLowerCase().localeCompare(b.toLowerCase());
+            });
+            for (const elem of channels) {
+                parsed += elem;
+                parsed += " ";
+            }
+            return " <span style=\"color: #ff0000\">==</span> <p style=\"width: 80px; display: inline-block;\">&nbsp;channels</p> : " + parsed.trim();
         } else
         if (arr[1] === "312") {
             output = aw;
             for (var i = 5; i < arr.length; i++) {
                 parsed += " " + arr[i];
             }
-            return " <span style=\"color: #ff0000\">==</span> &nbsp;server : " + arr[4] + " [" + parsed.trim() + "]";
+            return " <span style=\"color: #ff0000\">==</span> <p style=\"width: 80px; display: inline-block;\">&nbsp;server</p> : " + arr[4] + " [" + parsed.trim() + "]";
         } else
         if (arr[1] === "330") {
             output = aw;
-            return " <span style=\"color: #ff0000\">==</span> &nbsp;account : " + arr[4];
+            return " <span style=\"color: #ff0000\">==</span> <p style=\"width: 80px; display: inline-block;\">&nbsp;account</p> : " + arr[4];
         } else
         if (arr[1] === "313") {
             output = aw;
-            return " <span style=\"color: #ff0000\">==</span> &nbsp;status : IRC-Operator";
+            return " <span style=\"color: #ff0000\">==</span> <p style=\"width: 80px; display: inline-block;\">&nbsp;</p> : IRC-Operator";
         } else
         if (arr[1] === "318") {
             output = aw;
@@ -114,11 +125,11 @@ function get_numerics(text) {
             for (var i = 4; i < arr.length; i++) {
                 parsed += " " + arr[i];
             }
-            return " <span style=\"color: #ff0000\">==</span> &nbsp;away : " + parsed.trim();
+            return " <span style=\"color: #ff0000\">==</span> <p style=\"width: 80px; display: inline-block;\">&nbsp;away</p> : " + parsed.trim();
         } else
         if (arr[1] === "317") {
             output = aw;
-            return " <span style=\"color: #ff0000\">==</span> &nbsp;idle : " + arr[4] + " seconds idle [connected " + get_date(arr[5] * 1000) + "]";
+            return " <span style=\"color: #ff0000\">==</span> <p style=\"width: 80px; display: inline-block;\">&nbsp;idle</p> : " + arr[4] + " seconds idle [connected " + get_date(arr[5] * 1000) + "]";
         } else
         if (arr[1] === "321" || arr[1] === "322" || arr[1] === "323" || arr[1] === "396" || arr[1] === "403" || arr[1] === "381") {
             output = aw;
@@ -126,6 +137,10 @@ function get_numerics(text) {
                 parsed += " " + arr[i];
             }
             return " <span style=\"color: #ff0000\">==</span> " + parsed.trim();
+        } else
+        if (arr[1] === "001") {
+            output = aw;
+            parse_page(get_timestamp() + " <span style=\"color: #ff0000\">==</span> Signed on!<br>\n");
         }
         if (arr[1].startsWith("3")) {
             output = aw;
