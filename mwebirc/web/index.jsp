@@ -23,9 +23,6 @@
     session.setAttribute("ip", request.getRemoteAddr());
     session.setAttribute("forwarded_for_header", forwardedForHeader);
     session.setAttribute("forwarded_for_ips", forwardedForIps);
-%>
-<jsp:include page="header-webchat.jsp"/> 
-<%
     var paramConnect = request.getParameter("connect");
     if (paramConnect != null) {
         var paramNick = request.getParameter("nick");
@@ -41,6 +38,7 @@
         }
         session.setAttribute("param-channel", paramChannel);
 %>
+<jsp:include page="header-webchat.jsp"/> 
 <div class="top_frame" id="nav_window">
 </div>
 <div class="topic_frame" id="topic_window">
@@ -64,6 +62,7 @@
 <%
 } else {
 %>
+<jsp:include page="header.jsp"/> 
 <form method="POST" name="login" action="" target="_top" accept-charset="utf-8">
 
     <input name="connect" value="true" type="hidden">
