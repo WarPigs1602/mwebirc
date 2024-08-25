@@ -136,7 +136,7 @@ function parseText(text) {
         text = text.substring(output.length);
         aw = output;
         parse_output("*** " + get_user() + " has left " + aw);
-        text = "/part " + get_status(output, get_user()) + output + " " + escapeHtml(text);
+        text = "/part " + output + " " + escapeHtml(text);
         add_window();
     } else if (text.startsWith("/quit ")) {
         text = text.substring(6);

@@ -53,7 +53,7 @@
 </div>   
 <script>
    var user = "<% out.print(paramNick); %>";
-   const channel = "<% out.print(paramChannel); %>";
+   const chan = "<% out.print(paramChannel); %>";
 </script>
 <script src="file/chat.js"></script>
 <script src="file/irc.js"></script> 

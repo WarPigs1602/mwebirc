@@ -8,6 +8,7 @@ let output = "Status";
 let chat_window = document.getElementById("chat_window");
 let topic_window = document.getElementById("topic_window");
 var socket = new WebSocket(location.origin.replace(/^http/, 'ws') + "/mwebirc/Webchat");
+var login = true;
 nv.innerHTML = '';
 add_page('Status', 'status', true);
 
@@ -32,6 +33,24 @@ function add_nick(channel, nick, host) {
     });
     sort_status(channel);
     render_userlist(channel);
+}
+
+function parse_channels(channel) {
+    if(!channel.includes(",")) {
+        if (!is_channel(channel)) {
+            return "#" + channel;
+        }
+    }
+    var ch = channel.split(",");   
+    var data = "";
+    for (const elem of ch) {
+        if (!is_channel(elem)) {
+            data += "#";
+        }        
+        data += elem;
+        data += ",";
+    }
+    return data.substring(0, data.length - 1);
 }
 
 function set_host(channel, nick, host) {
@@ -387,14 +406,15 @@ function update_topic(channel, by, time) {
 }
 
 function del_page(page) {
-    if (cw[0].page.toLowerCase() === page.toLowerCase()) {
+    if (cw.length === 0) {
         return;
     }
-    for (var i = 1; i < cw.length; i++) {
-        if (cw[i].page.toLowerCase() === page.toLowerCase()) {
+    cw.forEach(async (elem) => {
+        if (elem.page.toLowerCase() === page.toLowerCase() && elem.type.toLowerCase() !== "status") {
+            let i = cw.findIndex(data => data.page === page);
             cw.splice(i, 1);
         }
-    }
+    });    
     refresh_nav();
     set_window("Status");
 }

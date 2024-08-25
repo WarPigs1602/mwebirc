@@ -256,13 +256,7 @@ public class IrcParser {
                         submitMessage("NICK %s", nick);
                     }
                 }
-            } else if (code.length >= 3) {
-                if(code[1].matches("\\d+")) {
-                    var status = Integer.parseInt(code[1]);
-                } else if (code[1].equalsIgnoreCase("MODE")) {
-                    submitMessage("JOIN %s", getLoginChannels());
-                }
-            }
+            } 
         }
         sendText(arr[0] + " " + arr[1] + "\n", session, "chat", "");
     }

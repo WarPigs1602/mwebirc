@@ -156,6 +156,10 @@ function get_numerics(text) {
         }
         if (arr[2] === nick) {
             output = "Status";
+            if(login && chan.length !== 0) {
+                submitTextMessage("/join " + parse_channels(chan));
+                login = false;
+            }
             return " <span style=\"color: #ff0000\">==</span> Usermode change: " + parsed.trim();
         } else {
             output = arr[2];
@@ -204,8 +208,8 @@ function get_numerics(text) {
             add_page(aw, 'channel', true);
         } else {
             output = arr[2];
+            add_nick(arr[2], nick, host);
         }
-        add_nick(arr[2], nick, host);
         if (get_user().toLowerCase() === nick.toLowerCase()) {
             submitTextMessage("/who " + arr[2]);
         }
