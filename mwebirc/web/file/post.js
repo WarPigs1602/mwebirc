@@ -1,48 +1,36 @@
-var messageHistory = new Array(20);
-var messageCounter = -1;
+var messageHistory = new Array();
+var messageCounter = 0;
 var browser = navigator.appName;
 let message = document.getElementById("message");
 clearMessageHistory();
 
 function clearMessageHistory() {
-    for (var i = 0; i <= 20; i++) {
-        messageHistory[i] = "";
-    }
+    messageHistory = new Array();
 }
 
 function addMessageHistory(message) {
-    for (var i = 20; i >= 0; i--) {
-        if (i != 0) {
-            messageHistory[i] = messageHistory[i - 1];
-        } else {
-            messageHistory[i] = message;
-        }
-    }
+    messageHistory.push(message);
 }
 
-function submitOpera() {
-    if (browser == "Opera") {
-        sendText();
-        return false;
-    }
-}
 
 function submitChatInput(keyEvent) {
-    if (browser == "Opera") {
-        return true;
-    }
-    if (keyEvent.keyCode == "38") {
+    var key = keyEvent.key;
+    if (key === 'ArrowUp') {
         messageUp();
         return true;
     }
-    if (keyEvent.keyCode == "40") {
+    if (key === 'ArrowDown') {
         messageDown();
         return true;
     }
-    if (keyEvent.keyCode == "13") {
+    if (key === 'Enter') {
         sendText();
         return false;
-    } else {
+    }
+    if (key === 'Tab') {
+        tab();
+        return false;
+    } else  {
         return true;
     }
 }
@@ -54,7 +42,7 @@ function focusText() {
 function sendText() {
     addMessageHistory(message.value);
     messageCounter = -1;
-    if (message.value != "") {
+    if (message.value !== "") {
         submitText();
     }
     clearMessage();
@@ -178,31 +166,49 @@ function emoticon(text) {
 
 function messageUp() {
     messageCounter++;
-    if (messageCounter > 20) {
-        messageCounter = 20;
+    if (messageCounter < messageHistory.length) {
+        message.value = messageHistory[messageCounter];
+        message.focus();
+    } else {
+        messageDown();
     }
-    message.value = messageHistory[messageCounter];
-    message.focus();
 }
 
 function messageDown() {
-    messageCounter--;
-    if (messageCounter < 0) {
-        messageCounter = 0;
+    if (messageCounter === 0) {
         message.value = "";
     } else {
+        messageCounter--;
         message.value = messageHistory[messageCounter];
         message.focus();
     }
 }
 
+function tab() {
+    var msg = message.value;
+    var arr = null;
+    var parse = null;
+    var content = "";
+    if (msg.includes(" ")) {
+        arr = msg.split(" ");
+        parse = arr[arr.length - 1];
+        arr[arr.length - 1] = parse_tab(parse, false);
+        for (const elem of arr) {
+            content += elem;
+            content += " ";
+        }
+    } else {
+       content = parse_tab(msg, true); 
+    }
+    message.value = content;
+}
+
 function escapeHtml(e) {
     let n = document.createElement("p");
-    return n.appendChild(document.createTextNode(e)), n.innerHTML
+    return n.appendChild(document.createTextNode(e)), n.innerHTML;
 }
-;
+
 function unescapeHtml(e) {
     let n = document.createElement("p");
-    return n.innerHTML = e, 0 == n.childNodes.length ? "" : n.childNodes[0].nodeValue
+    return n.innerHTML = e, 0 === n.childNodes.length ? "" : n.childNodes[0].nodeValue;
 }
-;

@@ -36,17 +36,17 @@ function add_nick(channel, nick, host) {
 }
 
 function parse_channels(channel) {
-    if(!channel.includes(",")) {
+    if (!channel.includes(",")) {
         if (!is_channel(channel)) {
             return "#" + channel;
         }
     }
-    var ch = channel.split(",");   
+    var ch = channel.split(",");
     var data = "";
     for (const elem of ch) {
         if (!is_channel(elem)) {
             data += "#";
-        }        
+        }
         data += elem;
         data += ",";
     }
@@ -307,6 +307,27 @@ function get_status(channel, nickname) {
     return "";
 }
 
+function parse_tab(nickname, start) {
+    if (!is_channel(aw)) {
+        return nickname;
+    }
+    for (const elem of cw) {
+        if (elem.page.toLowerCase() === aw.toLowerCase()) {
+            for (const nick of elem.nicks) {
+                var name = get_nick(aw, nick.nick);
+                if (name.toLowerCase().startsWith(nickname.toLowerCase())) {
+                    if (start) {
+                        return name + ": ";
+                    } else {
+                        return name;
+                    }
+                }
+            }
+        }
+    }
+    return nickname;
+}
+
 function get_nick(channel, nickname) {
     var elem = null;
     var status = null;
@@ -355,7 +376,7 @@ function add_page(page, type, open) {
 }
 
 function render_topic(channel) {
-    if(!channel) {
+    if (!channel) {
         return;
     }
     var content = parse_channel(channel);
@@ -365,9 +386,9 @@ function render_topic(channel) {
             var nick = null;
             var doc = document.createElement("topic_" + content);
             if (elem.topic && elem.topic.length !== 0) {
-                doc.innerHTML = channel+": "+elem.topic;
+                doc.innerHTML = channel + ": " + elem.topic;
             } else {
-                doc.innerHTML = channel+": (No topic set)";
+                doc.innerHTML = channel + ": (No topic set)";
             }
             while (topic_window.firstChild) {
                 topic_window.removeChild(topic_window.firstChild);
@@ -414,7 +435,7 @@ function del_page(page) {
             let i = cw.findIndex(data => data.page === page);
             cw.splice(i, 1);
         }
-    });    
+    });
     refresh_nav();
     set_window("Status");
 }
@@ -511,13 +532,13 @@ function add_window() {
         sort_status(aw);
         render_userlist(aw);
         render_topic(aw);
-        scrollToEnd("#chat_window", 100);
+        scrollToEnd("#chat_window", 1);
     } else {
         var elem = null;
         cw.forEach(async (elem) => {
             chat_window.innerHTML = elem.elem.innerHTML;
             parse_frame(elem.page, elem.type);
-            scrollToEnd("#chat_window", 100);
+            scrollToEnd("#chat_window", 1);
         });
     }
 }
