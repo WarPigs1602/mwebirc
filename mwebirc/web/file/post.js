@@ -109,7 +109,7 @@ function parseText(text) {
         text = text.substring(4);
         output = aw;
         parse_output("* " + get_status(output, get_user()) + get_user() + " " + text);
-        text = "/privmsg " + aw + " \001ACTION " + escapeHtml(text) + "\001";
+        text = "/privmsg " + aw + " " + String.fromCharCode(1) + "ACTION " + escapeHtml(text) + String.fromCharCode(1);
         add_window();
     } else if (text.startsWith("/msg ")) {
         text = text.substring(5);

@@ -80,7 +80,7 @@ function get_numerics(text) {
             for (var i = 7; i < arr.length; i++) {
                 parsed += " " + arr[i];
             }
-            return " <span style=\"color: #ff0000\">==</span> <span style\"font-weight: bold;\">" + nick + "</span> [" + host + "]<br>\n" + get_timestamp() + " <span style=\"color: #ff0000\">==</span> <p style=\"width: 80px; display: inline-block;\">&nbsp;realname</p> : " + parsed.trim();
+            return " <span style=\"color: #ff0000\">==</span> <span style=\"font-weight: bold;\">" + nick + "</span> [" + host + "]<br>\n" + get_timestamp() + " <span style=\"color: #ff0000\">==</span> <p style=\"width: 80px; display: inline-block;\">&nbsp;realname</p> : " + parsed.trim();
         } else
         if (arr[1] === "319") {
             output = aw;
@@ -284,7 +284,10 @@ function get_numerics(text) {
             parsed += " " + arr[i];
         }
         parsed = parsed.trim();
-        if (parsed.startsWith("\001ACTION ") && parsed.endsWith("\001")) {
+        if (text.toLowerCase().includes(user.toLowerCase())) {
+            highlight = true;
+        }
+        if (parsed.startsWith(String.fromCharCode(1) + "ACTION ") && parsed.endsWith(String.fromCharCode(1))) {
             return "* " + get_status(arr[2], nick) + nick + " " + parsed.substring(8, parsed.length - 1);
         } else {
             return "&lt;" + get_status(arr[2], nick) + nick + "&gt; " + parsed;

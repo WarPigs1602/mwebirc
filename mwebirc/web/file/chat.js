@@ -9,7 +9,30 @@ let chat_window = document.getElementById("chat_window");
 let topic_window = document.getElementById("topic_window");
 var socket = new WebSocket(location.origin.replace(/^http/, 'ws') + "/mwebirc/Webchat");
 var login = true;
+var highlight = false;
 nv.innerHTML = '';
+window.onbeforeunload = function () {
+    return "WarnOnClose";
+};
+const colors = [
+    'white',
+    'black',
+    'navy',
+    'green',
+    'red',
+    'brown',
+    'purple',
+    'olive',
+    'yellow',
+    'lightgreen',
+    'teal',
+    'cyan',
+    'blue',
+    'pink',
+    'gray',
+    'lightgray'
+];
+
 add_page('Status', 'status', true);
 parse_page(get_timestamp() + " mwebirc 1.0<br>\n");
 parse_page(get_timestamp() + " &copy; 2024 by Andreas Pschorn<br>\n");
@@ -26,6 +49,168 @@ function set_window(win) {
     add_window();
 }
 
+function parse_control(text) {
+    var content = text;
+    var arr = null;
+    var elem = 0;
+    if (text.includes(String.fromCharCode(3))) {
+        arr = text.split(String.fromCharCode(3));
+        var open = false;
+        content = arr[0];
+        var cnt = 0;
+        for (var i = 1; i < arr.length; i++) {
+            var color = "#000000";
+            var bgcolor = "#FFFFFF";
+            var code = arr[i].replace(/[^0-9,]/g, "");
+            if (code.length > 0 && arr[i].startsWith(code)) {
+                var control = new Array();
+                if (code.includes(",")) {
+                    control = code.split(",");
+                } else {
+                    control.push(code);
+                }
+                if (control.length === 1) {
+                    for (var j = 0; j < colors.length; j++) {
+                        if (j === parseInt(control[0])) {
+                            color = colors[j];
+                            cnt++;
+                            elem++;
+                        }
+                    }
+                } else if (control.length === 2) {
+                    for (var j = 0; j < colors.length; j++) {
+                        if (j === parseInt(control[0])) {
+                            color = colors[j];
+                            cnt++;
+                            elem++;
+                        }
+                        if (j === parseInt(control[1])) {
+                            bgcolor = colors[j];
+                        }
+                    }
+                }
+                arr[i] = arr[i].substring(code.length);
+                content += "<span style=\"color: " + color + "; background-color: " + bgcolor + "\">";
+                content += arr[i];
+            } else {
+                content += arr[i];
+            }
+        }
+        if (cnt > 0) {
+            while (cnt !== 0) {
+                content += "</span>";
+                cnt--;
+                elem--;
+            }
+        }
+        text = content.trim();
+    }
+    if (text.includes(String.fromCharCode(2))) {
+        arr = text.split(String.fromCharCode(2));
+        var open = false;
+        content = arr[0];
+        for (var i = 1; i < arr.length; i++) {
+            if (!open) {
+                content += "<span style=\"font-weight: bold;\">";
+                open = true;
+                content += arr[i];
+                elem++;
+            } else {
+                elem--;
+                content += arr[i];
+                content += "</span>";
+                open = false;
+            }
+        }
+        if (open) {
+            content += "</span>";
+            elem--;
+        }
+        text = content.trim();
+    }
+    if (text.includes(String.fromCharCode(29))) {
+        arr = text.split(String.fromCharCode(29));
+        var open = false;
+        content = arr[0];
+        for (var i = 1; i < arr.length; i++) {
+            if (!open) {
+                content += "<span style=\"font-style: italic;\">";
+                open = true;
+                content += arr[i];
+                elem++;
+            } else {
+                elem--;
+                content += arr[i];
+                content += "</span>";
+                open = false;
+            }
+        }
+        if (open) {
+            elem--;
+            content += "</span>";
+        }
+        text = content.trim();
+    }
+    if (text.includes(String.fromCharCode(30))) {
+        arr = text.split(String.fromCharCode(30));
+        var open = false;
+        content = arr[0];
+        for (var i = 1; i < arr.length; i++) {
+            if (!open) {
+                content += "<span style=\"text-decoration: line-through;\">";
+                open = true;
+                content += arr[i];
+                elem++;
+            } else {
+                elem--;
+                content += arr[i];
+                content += "</span>";
+                open = false;
+            }
+        }
+        if (open) {
+            elem--;
+            content += "</span>";
+        }
+        text = content.trim();
+    }
+    if (text.includes(String.fromCharCode(31))) {
+        arr = text.split(String.fromCharCode(31));
+        var open = false;
+        content = arr[0];
+        for (var i = 1; i < arr.length; i++) {
+            if (!open) {
+                content += "<span style=\"text-decoration: underline;\">";
+                open = true;
+                content += arr[i];
+                elem++;
+            } else {
+                elem--;
+                content += arr[i];
+                content += "</span>";
+                open = false;
+            }
+        }
+        if (open) {
+            elem--;
+            content += "</span>";
+        }
+        text = content.trim();
+    }
+    if (text.includes(String.fromCharCode(15))) {
+        arr = text.split(String.fromCharCode(15));
+        content = arr[0];
+        for (var j = 1; j < arr.length; j++) {      
+            while (elem >= 0) {
+                content += "</span>";
+                content += arr[j];
+                elem--;
+            }
+        }
+        text = content.trim();
+    }
+    return text;
+}
 function add_nick(channel, nick, host) {
     var elem = null;
     cw.forEach(async (elem) => {
@@ -234,6 +419,14 @@ function SortArray(x, y) {
     return x.nick.localeCompare(y.nick);
 }
 
+function parse_url(url) {
+    try {
+        const link = new URL(url);
+        return "<a href=\"" + link.href + "\" target=\"_blank\">" + link.href + "</a>";
+    } catch (err) {
+        return url;
+    }
+}
 function render_userlist(channel) {
     var content = parse_channel(channel);
     var elem = null;
@@ -391,7 +584,7 @@ function render_topic(channel) {
             var nick = null;
             var doc = document.createElement("topic_" + content);
             if (elem.topic && elem.topic.length !== 0) {
-                doc.innerHTML = channel + ": " + elem.topic;
+                doc.innerHTML = channel + ": " + parse_control(elem.topic);
             } else {
                 doc.innerHTML = channel + ": (No topic set)";
             }
@@ -470,15 +663,89 @@ function parse_pages2(text, cnt) {
 function parse_pages(text, pg) {
     for (const elem of cw) {
         if (elem.page.toLowerCase() === pg.toLowerCase()) {
-            elem.elem.innerHTML += text;
+            if (highlight) {
+                text = "<span style=\"color: #990000\">" + text;
+            }
+            var arr = null;
+            var parsed = "";
+            if (text.includes(" ")) {
+                arr = text.split(" ");
+                for (const part of arr) {
+                    if (part.startsWith("http://") || part.startsWith("https://")) {
+                        if (part.endsWith("<br>\n")) {
+                            parsed += parse_url(part.substring(0, part.length - 5));
+                            parsed += "<br>\n";
+                        } else {
+                            parsed += parse_url(part);
+                        }
+                    } else {
+                        parsed += part;
+                    }
+                    parsed += " ";
+                }
+            } else {
+                if (text.startsWith("http://") || text.startsWith("https://")) {
+                    if (text.endsWith("<br>\n")) {
+                        parsed += parse_url(text.substring(0, text.length - 5));
+                    } else {
+                        parsed += parse_url(text);
+                        parsed += "<br>\n";
+                    }
+                } else {
+                    parsed += text;
+                }
+            }
+            parsed = parse_control(parsed.trim());
+            if (highlight) {
+                parsed += "</span>";
+                highlight = false;
+            }
+            elem.elem.innerHTML += parsed;
             return;
         }
     }
 }
 
 function parse_page(text) {
+    if (highlight) {
+        text = "<span style=\"color: #990000\">" + text;
+    }
     for (const elem of cw) {
-        elem.elem.innerHTML += text;
+        var arr = null;
+        var parsed = "";
+        if (text.includes(" ")) {
+            arr = text.split(" ");
+            for (const part of arr) {
+                if (part.startsWith("http://") || part.startsWith("https://")) {
+                    if (part.endsWith("<br>\n")) {
+                        parsed += parse_url(part.substring(0, part.length - 5));
+                        parsed += "<br>\n";
+                    } else {
+                        parsed += parse_url(part);
+                    }
+                } else {
+                    parsed += part;
+                }
+                parsed += " ";
+            }
+        } else {
+            if (text.startsWith("http://") || text.startsWith("https://")) {
+                if (text.endsWith("<br>\n")) {
+                    parsed += parse_url(text.substring(0, text.length - 5));
+                } else {
+                    parsed += parse_url(text);
+                    parsed += "<br>\n";
+                }
+            } else {
+                parsed += text;
+            }
+        }
+        parsed = parse_control(parsed.trim());
+        if (highlight) {
+            parsed += "</span>";
+            highlight = false;
+        }
+        elem.elem.innerHTML += parsed;
     }
 }
 
