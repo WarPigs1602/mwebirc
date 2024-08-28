@@ -66,13 +66,6 @@ function get_numerics(text) {
             set_host(channel, nick, host);
             return null;
         } else
-        if (arr[1] === "352") {
-            var channel = arr[3];
-            var nick = arr[7];
-            var host = arr[4] + "@" + arr[5];
-            set_host(channel, nick, host);
-            return null;
-        } else
         if (arr[1] === "311") {
             output = aw;
             var nick = arr[3];
@@ -131,6 +124,22 @@ function get_numerics(text) {
             output = aw;
             return " <span style=\"color: #ff0000\">==</span> <p style=\"width: 80px; display: inline-block;\">&nbsp;idle</p> : " + arr[4] + " seconds idle [connected " + get_date(arr[5] * 1000) + "]";
         } else
+        if (arr[1] === "443") {
+            output = aw;
+            return " <span style=\"color: #ff0000\">==</span> " + arr[3] + " is allready in channel " + arr[4];
+        } else
+        if (arr[1] === "401") {
+            output = aw;
+            return " <span style=\"color: #ff0000\">==</span> " + arr[3] + " no such nick";
+        } else
+        if (arr[1] === "482") {
+            output = aw;
+            return " <span style=\"color: #ff0000\">==</span> You are not a channel operator in " + arr[3];
+        } else
+        if (arr[1] === "341") {
+            output = aw;
+            return " <span style=\"color: #ff0000\">==</span> You have " + arr[3] + " invited to: " + arr[4];
+        } else
         if (arr[1] === "321" || arr[1] === "322" || arr[1] === "323" || arr[1] === "396" || arr[1] === "403" || arr[1] === "381") {
             output = aw;
             for (var i = 3; i < arr.length; i++) {
@@ -148,7 +157,7 @@ function get_numerics(text) {
                 parsed += " " + arr[i];
             }
         } else {
-            output = "Status";
+            output = aw;
             for (var i = 3; i < arr.length; i++) {
                 parsed += " " + arr[i];
             }
@@ -215,6 +224,16 @@ function get_numerics(text) {
     } else if (arr[1].toLowerCase() === "nick") {
         var nick = parse_nick(arr[0]);
         change_nick(nick, arr[2]);
+        return null;
+    } else if (arr[1].toLowerCase() === "invite") {
+        var nick = parse_nick(arr[0]);
+        if (get_user().toLowerCase() === arr[2].toLowerCase()) {
+            output = aw;
+            parse_page(get_timestamp() + " <span style=\"color: #ff0000\">==</span> " + nick + " has you invited to: " + arr[3] + "<br>\n");
+        } else {
+            output = aw;
+            parse_page(get_timestamp() + " <span style=\"color: #ff0000\">==</span> You have " + arr[2] + " invited to: " + arr[3] + "<br>\n");
+        }
         return null;
     } else if (arr[1].toLowerCase() === "join") {
         var nick = parse_nick(arr[0]);

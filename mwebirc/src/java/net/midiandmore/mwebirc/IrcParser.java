@@ -15,6 +15,8 @@ import java.io.StringReader;
 import java.net.Socket;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import static org.apache.commons.codec.digest.HmacAlgorithms.HMAC_SHA_256;
+import org.apache.commons.codec.digest.HmacUtils;
 
 /**
  * The irc parser
@@ -22,6 +24,48 @@ import java.util.logging.Logger;
  * @author Andreas Pschorn
  */
 public class IrcParser {
+
+    /**
+     * @return the hmacTemporal
+     */
+    public long getHmacTemporal() {
+        return hmacTemporal;
+    }
+
+    /**
+     * @param hmacTemporal the hmacTemporal to set
+     */
+    public void setHmacTemporal(long hmacTemporal) {
+        this.hmacTemporal = hmacTemporal;
+    }
+
+    /**
+     * @return the mode
+     */
+    public String getMode() {
+        return mode;
+    }
+
+    /**
+     * @param mode the mode to set
+     */
+    public void setMode(String mode) {
+        this.mode = mode;
+    }
+
+    /**
+     * @return the cgi
+     */
+    public String getCgi() {
+        return cgi;
+    }
+
+    /**
+     * @param cgi the cgi to set
+     */
+    public void setCgi(String cgi) {
+        this.cgi = cgi;
+    }
 
     /**
      * @return the hostname
@@ -204,9 +248,15 @@ public class IrcParser {
     private String hostname;
     private String ip;
     private String realname;
+    private String mode;
+    private String cgi;
+    private long hmacTemporal;
 
-    protected IrcParser(String host, int port, boolean ssl, String serverPassword, String ident, String user, String password) {
+    protected IrcParser(String host, int port, boolean ssl, String serverPassword, String ident, String user, String password, String mode, String cgi, String hmacTemporal) {
         try {
+            setHmacTemporal(Long.parseLong(hmacTemporal));
+            setMode(mode);
+            setCgi(cgi);
             setHost(host);
             setPort(port);
             setSsl(ssl);
@@ -251,12 +301,33 @@ public class IrcParser {
             if (code.length == 2) {
                 if (code[0].equalsIgnoreCase("notice") && code[1].equalsIgnoreCase("auth")) {
                     if (arr[1].equalsIgnoreCase("*** Got ident response") || arr[1].equalsIgnoreCase("*** No ident response")) {
-                        submitMessage("WEBIRC %s %s %s %s", getPassword(), getUser(), getHostname(), getIp());
-                        submitMessage("USER %s bleh %s :%s", getIdent(), getIp(), getRealname());
+                        if (getMode() == null) {
+                            submitMessage("USER %s bleh bleh %s :%s", getIdent(), getIp(), getRealname());
+                        } else if (getMode().equalsIgnoreCase("webirc")) {
+                            submitMessage("WEBIRC %s %s %s %s", getPassword(), getUser(), getHostname(), getIp());
+                            submitMessage("USER %s bleh %s :%s", getIdent(), getIp(), getRealname());
+                        } else if (getMode().equalsIgnoreCase("cgiirc")) {
+                            submitMessage("PASS %s_%s_%s", getCgi(), getIp(), getHostname());
+                            submitMessage("USER %s bleh bleh %s :%s", getIdent(), getIp(), getRealname());
+                        } else if (getMode().equalsIgnoreCase("hmac")) {
+                            var hmac = new HmacUtils(HMAC_SHA_256, String.valueOf((System.currentTimeMillis() / 1000) / getHmacTemporal())).hmacHex("%s%s".formatted(ident, ip));
+                            submitMessage("USER %s bleh bleh %s %s :%s" , getIdent(), getIp(), hmac, getRealname());
+                        } else if (getMode().equalsIgnoreCase(getHostname()) || getMode().isBlank()) {
+                            String dispip = null;
+                            if (getIp().equalsIgnoreCase(getHostname())) {
+                                dispip = getIp();
+                            } else {
+                                dispip = "%s/%s".formatted(getHostname(), getIp());
+                            }
+                            submitMessage("USER %s bleh bleh :%s - %s", getIdent(), dispip, getRealname());
+                        }
+                        if (!getServerPassword().isBlank()) {
+                            submitMessage("PASS :%s", getServerPassword());
+                        }
                         submitMessage("NICK %s", nick);
                     }
                 }
-            } 
+            }
         }
         sendText(arr[0] + " " + arr[1] + "\n", session, "chat", "");
     }
@@ -278,9 +349,9 @@ public class IrcParser {
         text = text.replace("&", "&amp;");
         text = text.replace("<", "&lt;");
         text = text.replace(">", "&gt;");
-        return text;    
+        return text;
     }
-    
+
     protected void logout(String reason) {
         submitMessage("QUIT :%s", reason);
         if (getSocket() != null) {

@@ -17,4 +17,7 @@
     String webchatRealname = "https://irc.midiandmore.net/";
     String forwardedForHeader = "X-Forwarded-For";
     String forwardedForIps = "127.0.0.1";
+    String webircMode = "WEBIRC";
+    String webircCgi = "CGIIRC";
+    String hmacTemporal = "1337";
 %>

@@ -19,10 +19,25 @@
     session.setAttribute("webchat_user", webchatUser);
     session.setAttribute("webchat_password", webchatPassword);
     session.setAttribute("webchat_realname", webchatRealname);
+    session.setAttribute("webchat_mode", webircMode);
+    session.setAttribute("webchat_cgiirc", webircCgi);
+    session.setAttribute("hmac_temporal", hmacTemporal);
     session.setAttribute("hostname", request.getRemoteHost());
     session.setAttribute("ip", request.getRemoteAddr());
     session.setAttribute("forwarded_for_header", forwardedForHeader);
     session.setAttribute("forwarded_for_ips", forwardedForIps);
+    var paramC = request.getParameter("channels");
+    var paramN = request.getParameter("name");
+    if (paramC == null) {
+        paramC = "";
+    } else if (!paramC.startsWith("#") && !paramC.startsWith("&")) {
+        paramC = "#" + paramC;
+    }
+    if (paramN == null) {
+        paramN = "";
+    } else {
+        paramN = paramN.replace("%", String.valueOf((int) (Math.random() * 9)));
+    }
     var paramConnect = request.getParameter("connect");
     if (paramConnect != null) {
         var paramNick = request.getParameter("nick");
@@ -52,8 +67,8 @@
     <input type="button" value="Send" class="input-group-append btn btn-secondary btn-sm" onclick="sendText();"></input>
 </div>   
 <script>
-   var user = "<% out.print(paramNick); %>";
-   const chan = "<% out.print(paramChannel); %>";
+    var user = "<% out.print(paramNick); %>";
+    const chan = "<% out.print(paramChannel); %>";
 </script>
 <script src="file/chat.js"></script>
 <script src="file/irc.js"></script> 
@@ -66,8 +81,8 @@
 <form method="POST" name="login" action="" target="_top" accept-charset="utf-8">
 
     <input name="connect" value="true" type="hidden">
-    <input class="form-control form-control-sm" maxlength="20" name="nick"  placeholder="Nickname">
-    <input class="form-control form-control-sm" maxlength="255" name="channel"  placeholder="Channel">
+    <input class="form-control form-control-sm" maxlength="20" name="nick" value="<% out.print(paramN); %>" placeholder="Nickname">
+    <input class="form-control form-control-sm" maxlength="255" name="channel" value="<% out.print(paramC); %>" placeholder="Channel">
     <input class="input-group-append btn btn-secondary btn-sm" value="Login" type="submit">
 </form>
 <jsp:include page="footer.jsp"/> 

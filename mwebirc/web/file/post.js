@@ -9,7 +9,7 @@ function clearMessageHistory() {
 }
 
 function addMessageHistory(message) {
-    messageHistory.push(message);
+    messageHistory.unshift(message);
 }
 
 
@@ -137,13 +137,13 @@ function parseText(text) {
         text = text.substring(4);
         output = aw;
         parse_output("* " + get_status(output, get_user()) + get_user() + " " + text);
-        text = "/privmsg " + aw + " :" + String.fromCharCode(1) + "ACTION " + escapeHtml(text) + String.fromCharCode(1);
+        text = "/privmsg " + aw + " " + String.fromCharCode(1) + "ACTION " + escapeHtml(text) + String.fromCharCode(1);
         add_window();
     } else if (text.startsWith("/msg ")) {
         text = text.substring(5);
         output = aw;
-        parse_output("&raquo; " + text.split(" ", 1)[0] + ": " + text.substring(text.split(" ", 1)[0].length + 1));
-        text = "/privmsg " + text.split(" ", 1)[0] + " :" + escapeHtml(text).substring(text.split(" ", 1)[0].length + 1);
+        parse_output("&raquo; " + text.split(" ", 1)[0] + " " + text.substring(text.split(" ", 1)[0].length + 1));
+        text = "/privmsg " + text.split(" ", 1)[0] + " " + escapeHtml(text).substring(text.split(" ", 1)[0].length + 1);
         add_window();
     } else if (text.startsWith("/notice ")) {
         text = text.substring(8);
@@ -203,13 +203,11 @@ function messageUp() {
     if (messageCounter < messageHistory.length) {
         message.value = messageHistory[messageCounter];
         message.focus();
-    } else {
-        messageDown();
     }
 }
 
 function messageDown() {
-    if (messageCounter === 0) {
+    if (messageCounter <= 0) {
         message.value = "";
     } else {
         messageCounter--;

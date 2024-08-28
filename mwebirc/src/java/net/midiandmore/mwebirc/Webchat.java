@@ -67,6 +67,9 @@ public class Webchat {
         var realname = (String) getHttpSession().getAttribute("webchat_realname");
         var forwardedForHeader = (String) getHttpSession().getAttribute("forwarded_for_header");
         var forwardedForIps = (String) getHttpSession().getAttribute("forwarded_for_ips");
+        var webircMode = (String) getHttpSession().getAttribute("webchat_mode");
+        var webircCgi = (String) getHttpSession().getAttribute("webchat_cgi");
+        var hmac = (String) getHttpSession().getAttribute("hmac_temporal");
         if (config.getUserProperties().containsKey(forwardedForHeader.toLowerCase()) && ip.contains(forwardedForIps)) {
             hostname = (String) config.getUserProperties().getOrDefault(forwardedForHeader.toLowerCase(), "127.0.0.1");    
             try {
@@ -79,7 +82,7 @@ public class Webchat {
             }
         }
         getSession().setMaxIdleTimeout(sessionTimeout);
-        setParser(new IrcParser(host, port, ssl, serverPassword, ident, user, password));
+        setParser(new IrcParser(host, port, ssl, serverPassword, ident, user, password, webircMode, webircCgi, hmac));
         String dispip = null;
         var nick = (String) getHttpSession().getAttribute("param-nick");
         var channel = (String) getHttpSession().getAttribute("param-channel");
