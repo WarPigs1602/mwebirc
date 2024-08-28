@@ -113,7 +113,7 @@ function parseText(text) {
         if (aw.toLowerCase() !== "status") {
             output = aw;
             parse_output("&lt;" + get_status(aw, get_user()) + get_user() + "&gt; " + escapeHtml(text));
-            text = "/privmsg " + aw + " :" + text;
+            text = "/privmsg " + aw + " " + text;
             add_window();
         } else {
             get_timestamp();
@@ -176,6 +176,12 @@ function ircText(text) {
         if (i === 1 && (text.toLowerCase().startsWith("/quit") || text.toLowerCase().startsWith("/away"))) {
             result += " :";
         } else
+        if (i === 2 && text.toLowerCase().startsWith("/privmsg")) {
+            result += " :";
+        } else 
+        if (i === 2 && text.toLowerCase().startsWith("/notice")) {
+            result += " :";
+        } else 
         if (i === 2 && content.length !== 3 && !text.toLowerCase().startsWith("/mode") && !text.toLowerCase().startsWith("/away") && !text.toLowerCase().startsWith("/quit") && !text.toLowerCase().startsWith("/kick")) {
             result += " :";
         } else if (i === 3 && text.toLowerCase().startsWith("/kick")) {
