@@ -23,6 +23,30 @@ function submitChatInput(keyEvent) {
         messageDown();
         return true;
     }
+    if (key === 'k' && keyEvent.ctrlKey) {
+        control(3);
+        return false;
+    }
+    if (key === 'b' && keyEvent.ctrlKey) {
+        control(2);
+        return false;
+    }
+    if (key === 'i' && keyEvent.ctrlKey) {
+        control(29);
+        return false;
+    }
+    if (key === 'l' && keyEvent.ctrlKey) {
+        control(30);
+        return false;
+    }
+    if (key === 'u' && keyEvent.ctrlKey) {
+        control(31);
+        return false;
+    }
+    if (key === 'o' && keyEvent.ctrlKey) {
+        control(15);
+        return false;
+    }
     if (key === 'Enter') {
         sendText();
         return false;
@@ -37,6 +61,10 @@ function submitChatInput(keyEvent) {
 
 function focusText() {
     clearMessage();
+}
+
+function control(code) {
+    message.value += String.fromCharCode(code);
 }
 
 function sendText() {
@@ -85,7 +113,7 @@ function parseText(text) {
         if (aw.toLowerCase() !== "status") {
             output = aw;
             parse_output("&lt;" + get_status(aw, get_user()) + get_user() + "&gt; " + escapeHtml(text));
-            text = "/privmsg " + aw + " " + text;
+            text = "/privmsg " + aw + " :" + text;
             add_window();
         } else {
             get_timestamp();
@@ -109,13 +137,19 @@ function parseText(text) {
         text = text.substring(4);
         output = aw;
         parse_output("* " + get_status(output, get_user()) + get_user() + " " + text);
-        text = "/privmsg " + aw + " " + String.fromCharCode(1) + "ACTION " + escapeHtml(text) + String.fromCharCode(1);
+        text = "/privmsg " + aw + " :" + String.fromCharCode(1) + "ACTION " + escapeHtml(text) + String.fromCharCode(1);
         add_window();
     } else if (text.startsWith("/msg ")) {
         text = text.substring(5);
-        output = text.split(" ", 1)[0];
-        parse_output("* " + get_user() + " " + text);
-        text = "/privmsg " + get_status(output, get_user()) + output + " " + escapeHtml(text).substring(output.length);
+        output = aw;
+        parse_output("&raquo; " + text.split(" ", 1)[0] + ": " + text.substring(text.split(" ", 1)[0].length + 1));
+        text = "/privmsg " + text.split(" ", 1)[0] + " :" + escapeHtml(text).substring(text.split(" ", 1)[0].length + 1);
+        add_window();
+    } else if (text.startsWith("/notice ")) {
+        text = text.substring(8);
+        output = aw;
+        parse_output("-" + text.split(" ", 1)[0] + "- " + text.substring(text.split(" ", 1)[0].length + 1));
+        text = "/notice " + text.split(" ", 1)[0] + " " + escapeHtml(text).substring(text.split(" ", 1)[0].length + 1);
         add_window();
     } else if (text.startsWith("/part ")) {
         text = text.substring(6);
