@@ -307,9 +307,9 @@ function get_numerics(text) {
             highlight = true;
         }
         if (parsed.startsWith(String.fromCharCode(1) + "ACTION ") && parsed.endsWith(String.fromCharCode(1))) {
-            return "* " + get_status(arr[2], nick) + nick + " " + parsed.substring(8, parsed.length - 1);
+            return "* <span style=\"color: " + get_color(arr[2], nick) + ";\">" + get_status(arr[2], nick) + nick + "</span>" + " " + parsed.substring(8, parsed.length - 1);
         } else {
-            return "&lt;" + get_status(arr[2], nick) + nick + "&gt; " + parsed;
+            return "&lt;<span style=\"color: " + get_color(arr[2], nick) + ";\">" + get_status(arr[2], nick) + nick + "</span>" + "&gt; " + parsed;
         }
     }
     return text;

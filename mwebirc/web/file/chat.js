@@ -200,7 +200,7 @@ function parse_control(text) {
     if (text.includes(String.fromCharCode(15))) {
         arr = text.split(String.fromCharCode(15));
         content = arr[0];
-        for (var j = 1; j < arr.length; j++) {      
+        for (var j = 1; j < arr.length; j++) {
             while (elem >= 0) {
                 content += "</span>";
                 content += arr[j];
@@ -217,12 +217,26 @@ function add_nick(channel, nick, host) {
         if (elem.page.toLowerCase() === channel.toLowerCase() && !elem.nicks.some(e => e.nick === nick)) {
             elem.nicks.push({
                 nick: nick,
-                host: host
+                host: host,
+                color: getRandomColor()
             });
         }
     });
     sort_status(channel);
     render_userlist(channel);
+}
+
+function getRandomColor() {
+    var letters = '0123456789ABCDEF';
+    var color = '#';
+    for (var i = 0; i < 6; i++) {
+        if (i === 2) {
+            color += letters[Math.floor(Math.random() * 10)];
+        } else {
+            color += letters[Math.floor(Math.random() * 16)];
+        }
+    }
+    return color;
 }
 
 function parse_channels(channel) {
@@ -258,7 +272,8 @@ function set_host(channel, nick, host) {
                     let i = elem.nicks.findIndex(data => data.nick === parsed);
                     elem.nicks.splice(i, 1, {
                         nick: parsed,
-                        host: host
+                        host: host,
+                        color: getRandomColor()
                     });
                     return;
                 }
@@ -276,7 +291,7 @@ function del_nick(channel, nick) {
             parsed = nick;
         }
         if (elem.page.toLowerCase() === channel.toLowerCase() && elem.nicks.some(e => e.nick === parsed)) {
-            let i = elem.nicks.findIndex(data => data.nick === nick);
+            let i = elem.nicks.findIndex(data => data.nick === parsed);
             elem.nicks.splice(i, 1);
         }
     }
@@ -372,7 +387,8 @@ function change_nick(oldnick, newnick) {
                     let i = elem.nicks.findIndex(data => data.nick === parsed);
                     elem.nicks.splice(i, 1, {
                         nick: parsed2,
-                        host: host
+                        host: host,
+                        color: getRandomColor()
                     });
                     sort_status(channel);
                     render_userlist(channel);
@@ -436,7 +452,7 @@ function render_userlist(channel) {
             var doc = document.createElement("ulist_" + content);
             doc.innerHTML = "";
             elem.nicks.forEach(async (nick) => {
-                doc.innerHTML += nick.nick + "<br>\n";
+                doc.innerHTML += "<span style=\"color: " + nick.color + ";\">" + nick.nick + "</span><br>\n";
             });
             while (right.firstChild) {
                 right.removeChild(right.firstChild);
@@ -497,6 +513,29 @@ function get_status(channel, nickname) {
                 } else if (nick.nick.startsWith("+")) {
                     if (nick.nick.toLowerCase() === "+" + nickname.toLowerCase()) {
                         return "+";
+                    }
+                }
+            }
+        }
+    }
+    return "";
+}
+
+function get_color(channel, nickname) {
+    for (const elem of cw) {
+        if (elem.page.toLowerCase() === channel.toLowerCase()) {
+            for (const nick of elem.nicks) {
+                if (nick.nick.startsWith("@")) {
+                    if (nick.nick.toLowerCase() === "@" + nickname.toLowerCase()) {
+                        return nick.color;
+                    }
+                } else if (nick.nick.startsWith("+")) {
+                    if (nick.nick.toLowerCase() === "+" + nickname.toLowerCase()) {
+                        return nick.color;
+                    }
+                } else {
+                    if (nick.nick.toLowerCase() === nickname.toLowerCase()) {
+                        return nick.color;
                     }
                 }
             }

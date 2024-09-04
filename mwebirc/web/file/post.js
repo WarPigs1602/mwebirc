@@ -112,7 +112,7 @@ function parseText(text) {
     if (!text.startsWith("/")) {
         if (aw.toLowerCase() !== "status") {
             output = aw;
-            parse_output("&lt;" + get_status(aw, get_user()) + get_user() + "&gt; " + escapeHtml(text));
+            parse_output("&lt;<span style=\"color: " + get_color(aw, get_user()) + ";\">" + get_status(aw, get_user()) + get_user() + "</span>&gt; " + escapeHtml(text));
             text = "/privmsg " + aw + " " + text;
             add_window();
         } else {
@@ -136,7 +136,7 @@ function parseText(text) {
     } else if (text.startsWith("/me ")) {
         text = text.substring(4);
         output = aw;
-        parse_output("* " + get_status(output, get_user()) + get_user() + " " + text);
+        parse_output("* <span style=\"color: " + get_color(aw, get_user()) + ";\">" + get_status(aw, get_user()) + get_user() + "</span> " + text);
         text = "/privmsg " + aw + " " + String.fromCharCode(1) + "ACTION " + escapeHtml(text) + String.fromCharCode(1);
         add_window();
     } else if (text.startsWith("/msg ")) {
@@ -235,6 +235,7 @@ function tab() {
             content += elem;
             content += " ";
         }
+        content = content.trim();
     } else {
        content = parse_tab(msg, true); 
     }
