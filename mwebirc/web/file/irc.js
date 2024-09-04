@@ -195,14 +195,16 @@ function get_numerics(text) {
         } else {
             output = arr[2];
             var status = get_status(arr[2], nick);
+            var color = get_color(arr[2], nick);
             clear_nicks(arr[2]);
             if (arr[3].includes("o") || arr[3].includes("v")) {
                 submitTextMessage("/names " + arr[2]);
             }
-            return " <span style=\"color: #ff0000\">==</span> " + status + nick + " sets mode: " + parsed.trim();
+            return " <span style=\"color: #ff0000\">==</span> <span style=\"color: " + color + ";\">" + status + nick + "</span> sets mode: " + parsed.trim();
         }
     } else if (arr[1].toLowerCase() === "topic") {
         var nick = parse_nick(arr[0]);
+        var color = get_color(arr[2], nick);
         var parsed = "";
         for (var i = 3; i < arr.length; i++) {
             parsed += " " + arr[i];
@@ -210,7 +212,7 @@ function get_numerics(text) {
         output = arr[2];
         var status = get_status(arr[2], nick);
         set_topic(output, parsed.trim());
-        return " <span style=\"color: #ff0000\">==</span> " + status + nick + " sets topic: " + parsed.trim();
+        return " <span style=\"color: #ff0000\">==</span> <span style=\"color: " + color + ";\">" + status + nick + "</span> sets topic: " + parsed.trim();
     } else if (arr[1].toLowerCase() === "quit") {
         var nick = parse_nick(arr[0]);
         var parsed = "";
@@ -257,6 +259,8 @@ function get_numerics(text) {
         return " <span style=\"color: #ff0000\">==</span> " + nick + " [" + parse_host(arr[0]) + "] has joined " + arr[2];
     } else if (arr[1].toLowerCase() === "part") {
         var nick = parse_nick(arr[0]);
+        var color = get_color(arr[2], nick);
+        var status = get_status(arr[2], nick);
         var parsed = "";
         for (var i = 3; i < arr.length; i++) {
             parsed += " " + arr[i];
@@ -271,9 +275,11 @@ function get_numerics(text) {
             parsed = " (" + parsed.trim() + ")";
         }
         del_nick(arr[2], nick);
-        return " <span style=\"color: #ff0000\">==</span> " + get_status(arr[2], nick) + nick + " [" + parse_host(arr[0]) + "] has left " + arr[2] + parsed;
+        return " <span style=\"color: #ff0000\">==</span> <span style=\"color: " + color + ";\">" + status + nick + "</span> [" + parse_host(arr[0]) + "] has left " + arr[2] + parsed;
     } else if (arr[1].toLowerCase() === "kick") {
         var nick = parse_nick(arr[0]);
+        var color = get_color(arr[2], arr[3]);
+        var status = get_status(arr[2], arr[3]);
         var parsed = "";
         for (var i = 4; i < arr.length; i++) {
             parsed += " " + arr[i];
@@ -287,7 +293,7 @@ function get_numerics(text) {
             parsed = " (" + parsed.trim() + ")";
         }
         del_nick(arr[2], arr[3]);
-        return " <span style=\"color: #ff0000\">==</span> " + get_status(arr[2], nick) + nick + " [" + parse_host(arr[0]) + "] has kicked " + arr[3] + parsed;
+        return " <span style=\"color: #ff0000\">==</span> <span style=\"color: " + get_color(arr[2], nick) + ";\">" + get_status(arr[2], nick) + nick + "</span> [" + parse_host(arr[0]) + "] has kicked <span style=\"color: " + color + ";\">" + status + arr[3] + "</span>" + parsed;
     } else if (arr[1].toLowerCase() === "privmsg") {
         var nick = parse_nick(arr[0]);
         if (arr[2].startsWith("#") || arr[2].startsWith("&")) {

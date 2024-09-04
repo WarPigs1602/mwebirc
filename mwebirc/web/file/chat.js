@@ -343,6 +343,7 @@ function quit(nick, reason) {
             var channel = elem.page;
             var parsed = null;
             var status = get_status(channel, nick);
+            var color = get_color(channel, nick);
             if (status && status.length === 1) {
                 parsed = status + nick;
             } else {
@@ -350,7 +351,7 @@ function quit(nick, reason) {
             }
             if (name.nick.toLowerCase() === parsed.toLowerCase()) {
                 if (is_channel(channel)) {
-                    let i = elem.nicks.findIndex(data => data.nick === nick);
+                    let i = elem.nicks.findIndex(data => data.nick === parsed);
                     elem.nicks.splice(i, 1);
                     sort_status(channel);
                     render_userlist(channel);
@@ -358,7 +359,7 @@ function quit(nick, reason) {
                 if (reason.length !== 0) {
                     reason = " (" + reason + ")";
                 }
-                parse_pages(get_timestamp() + "  <span style=\"color: #ff0000\">==</span> " + parsed + " has left IRC" + reason + "<br>\n", channel);
+                parse_pages(get_timestamp() + "  <span style=\"color: #ff0000\">==</span> <span style=\"color: " + color + ";\">" + parsed + "</span> has left IRC" + reason + "<br>\n", channel);
             }
         }
     }
@@ -383,17 +384,18 @@ function change_nick(oldnick, newnick) {
             }
             if (name.nick.toLowerCase() === parsed.toLowerCase()) {
                 var host = name.host;
+                var color = name.color;
                 if (is_channel(channel)) {
                     let i = elem.nicks.findIndex(data => data.nick === parsed);
                     elem.nicks.splice(i, 1, {
                         nick: parsed2,
                         host: host,
-                        color: getRandomColor()
+                        color: color
                     });
                     sort_status(channel);
                     render_userlist(channel);
                 }
-                parse_pages(get_timestamp() + "  <span style=\"color: #ff0000\">==</span> " + parsed + " has changed his nick to " + newnick + "<br>\n", channel);
+                parse_pages(get_timestamp() + "  <span style=\"color: #ff0000\">==</span> <span style=\"color: " + color + ";\">" + parsed + "</span> has changed his nick to <span style=\"color: " + color + ";\">" + newnick + "</span><br>\n", channel);
                 break;
             }
         }
