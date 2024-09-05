@@ -5,6 +5,7 @@ let nav_window = document.getElementById("nav_window");
 let right = document.getElementById("right");
 let nv = document.createElement("nv");
 let output = "Status";
+let user_color = null;
 let chat_window = document.getElementById("chat_window");
 let topic_window = document.getElementById("topic_window");
 var socket = new WebSocket(location.origin.replace(/^http/, 'ws') + "/mwebirc/Webchat");
@@ -211,14 +212,14 @@ function parse_control(text) {
     }
     return text;
 }
-function add_nick(channel, nick, host) {
+function add_nick(channel, nick, host, color) {
     var elem = null;
     cw.forEach(async (elem) => {
         if (elem.page.toLowerCase() === channel.toLowerCase() && !elem.nicks.some(e => e.nick === nick)) {
             elem.nicks.push({
                 nick: nick,
                 host: host,
-                color: getRandomColor()
+                color: color
             });
         }
     });
@@ -268,12 +269,13 @@ function set_host(channel, nick, host) {
                 parsed = nick;
             }
             for (const name of elem.nicks) {
+                var color = name.color;
                 if (name.nick.toLowerCase() === parsed.toLowerCase()) {
                     let i = elem.nicks.findIndex(data => data.nick === parsed);
                     elem.nicks.splice(i, 1, {
                         nick: parsed,
                         host: host,
-                        color: getRandomColor()
+                        color: color
                     });
                     return;
                 }
@@ -281,6 +283,67 @@ function set_host(channel, nick, host) {
         }
     }
 }
+
+function set_mode(channel, line) {
+    for (const elem of cw) {
+        if (elem.page.toLowerCase() === channel.toLowerCase()) {
+            for (const name of elem.nicks) {
+                var nick = name.nick;
+                var host = name.host;
+                var color = name.color;
+                var parsed = null;
+                if (line.includes(" ")) {
+                    var modes = line.split(" ");
+                    if (modes[0].includes("-") || modes[0].includes("+")) {
+                        var mode = modes[0].split("");
+                        var add = false;
+                        var remove = false;
+                        var flag = 0;
+                        var status = "";
+                        for (let j = 0; j < mode.length; j++) {
+                            if (mode[j] === "-") {
+                                remove = true;
+                                add = false;
+                                flag++;
+                                continue;
+                            } else if (mode[j] === "+") {
+                                add = true;
+                                remove = false;
+                                flag++;
+                                continue;
+                            } else if (mode[j] === "o") {
+                                if (add) {
+                                    status = "@";
+                                } else if (remove) {
+                                    status = "";
+                                }
+                            } else if (mode[j] === "v") {
+                                if (add) {
+                                    status = "+";
+                                } else if (remove) {
+                                    status = "";
+                                }
+                            }
+                            var nickname = get_nick(channel, nick);
+                            if (modes[j - flag + 1] === nickname) {
+                                parsed = status + nickname;
+                                let i = elem.nicks.findIndex(data => data.nick === nick);
+                                elem.nicks.splice(i, 1, {
+                                    nick: parsed,
+                                    host: host,
+                                    color: color
+                                });
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    sort_status(channel);
+    render_userlist(channel);
+}
+
 function del_nick(channel, nick) {
     for (const elem of cw) {
         var parsed = null;
@@ -308,13 +371,8 @@ function is_nick(channel, nick) {
                 break;
             }
             for (const name of elem.nicks) {
-                if (parse_status(channel, nick).length === 1 && parse_status(channel, name.nick).length === 1) {
-                    flag = true;
-                } else if (parse_status(channel, nick).length === 1 && parse_status(channel, name.nick).length === 0) {
-                    flag = true;
-                } else if (parse_status(channel, nick).length === 0 && parse_status(channel, name.nick).length === 0) {
-                    flag = true;
-                } else if (parse_status(channel, nick).length === 1 && parse_status(channel, name.nick).length === 1) {
+                var nickname = get_status(channel, nick) + nick;
+                if (name.nick === nickname) {
                     flag = true;
                 }
             }
@@ -527,7 +585,7 @@ function get_color(channel, nickname) {
     for (const elem of cw) {
         if (elem.page.toLowerCase() === channel.toLowerCase()) {
             for (const nick of elem.nicks) {
-                if (nick.nick.startsWith("@")) {
+                if (is_nick(channel, nickname)) {
                     if (nick.nick.toLowerCase() === "@" + nickname.toLowerCase()) {
                         return nick.color;
                     }

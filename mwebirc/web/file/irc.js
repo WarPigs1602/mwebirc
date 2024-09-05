@@ -41,7 +41,7 @@ function get_numerics(text) {
         if (arr[1] === "353") {
             var channel = arr[4];
             for (var i = 5; i < arr.length; i++) {
-                add_nick(channel, arr[i], "");
+                add_nick(channel, arr[i], "", getRandomColor());
             }
             return null;
         } else if (arr[1] === "332") {
@@ -196,10 +196,7 @@ function get_numerics(text) {
             output = arr[2];
             var status = get_status(arr[2], nick);
             var color = get_color(arr[2], nick);
-            clear_nicks(arr[2]);
-            if (arr[3].includes("o") || arr[3].includes("v")) {
-                submitTextMessage("/names " + arr[2]);
-            }
+            set_mode(arr[2], parsed.trim());
             return " <span style=\"color: #ff0000\">==</span> <span style=\"color: " + color + ";\">" + status + nick + "</span> sets mode: " + parsed.trim();
         }
     } else if (arr[1].toLowerCase() === "topic") {
@@ -240,6 +237,7 @@ function get_numerics(text) {
     } else if (arr[1].toLowerCase() === "join") {
         var nick = parse_nick(arr[0]);
         var host = parse_host(arr[0]);
+        var color = getRandomColor();
         if (get_user().toLowerCase() === nick.toLowerCase()) {
             aw = arr[2];
             output = aw;
@@ -249,14 +247,15 @@ function get_numerics(text) {
             aw = arr[2];
             output = aw;
             add_page(aw, 'channel', true);
+            add_nick(arr[2], nick, host, color);
         } else {
             output = arr[2];
-            add_nick(arr[2], nick, host);
+            add_nick(arr[2], nick, host, color);
         }
         if (get_user().toLowerCase() === nick.toLowerCase()) {
             submitTextMessage("/who " + arr[2]);
         }
-        return " <span style=\"color: #ff0000\">==</span> " + nick + " [" + parse_host(arr[0]) + "] has joined " + arr[2];
+        return " <span style=\"color: #ff0000\">==</span> <span style=\"color: " + color + ";\">" + nick + "</span> [" + parse_host(arr[0]) + "] has joined " + arr[2];
     } else if (arr[1].toLowerCase() === "part") {
         var nick = parse_nick(arr[0]);
         var color = get_color(arr[2], nick);
