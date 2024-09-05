@@ -585,7 +585,7 @@ function get_color(channel, nickname) {
     for (const elem of cw) {
         if (elem.page.toLowerCase() === channel.toLowerCase()) {
             for (const nick of elem.nicks) {
-                if (is_nick(channel, nickname)) {
+                if (nick.nick.startsWith("@")) {
                     if (nick.nick.toLowerCase() === "@" + nickname.toLowerCase()) {
                         return nick.color;
                     }
