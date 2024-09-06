@@ -247,7 +247,7 @@ function get_numerics(text) {
             aw = arr[2];
             output = aw;
             add_page(aw, 'channel', true);
-            add_nick(arr[2], nick, host, color);
+            user_color = color;
         } else {
             output = arr[2];
             add_nick(arr[2], nick, host, color);

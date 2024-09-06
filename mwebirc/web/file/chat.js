@@ -215,12 +215,17 @@ function parse_control(text) {
 function add_nick(channel, nick, host, color) {
     var elem = null;
     cw.forEach(async (elem) => {
-        if (elem.page.toLowerCase() === channel.toLowerCase() && !elem.nicks.some(e => e.nick === nick)) {
-            elem.nicks.push({
-                nick: nick,
-                host: host,
-                color: color
-            });
+        if (elem.page.toLowerCase() === channel.toLowerCase()) {
+            if(elem.nicks.length === 0) {
+                color = user_color;
+            }
+            if (!elem.nicks.some(e => e.nick === nick)) {
+                elem.nicks.push({
+                    nick: nick,
+                    host: host,
+                    color: color
+                });
+            }
         }
     });
     sort_status(channel);
@@ -323,6 +328,9 @@ function set_mode(channel, line) {
                                 } else if (remove) {
                                     status = "";
                                 }
+                            } else {
+                                flag++;
+                                continue;
                             }
                             var nickname = get_nick(channel, nick);
                             if (modes[j - flag + 1] === nickname) {
