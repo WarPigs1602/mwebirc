@@ -104,7 +104,7 @@ function parse_control(text) {
                 elem--;
             }
         }
-        text = content;
+        text = content.trim();
     }
     if (text.includes(String.fromCharCode(2))) {
         arr = text.split(String.fromCharCode(2));
@@ -127,7 +127,7 @@ function parse_control(text) {
             content += "</span>";
             elem--;
         }
-        text = content;
+        text = content.trim();
     }
     if (text.includes(String.fromCharCode(29))) {
         arr = text.split(String.fromCharCode(29));
@@ -150,7 +150,7 @@ function parse_control(text) {
             elem--;
             content += "</span>";
         }
-        text = content;
+        text = content.trim();
     }
     if (text.includes(String.fromCharCode(30))) {
         arr = text.split(String.fromCharCode(30));
@@ -173,7 +173,7 @@ function parse_control(text) {
             elem--;
             content += "</span>";
         }
-        text = content;
+        text = content.trim();
     }
     if (text.includes(String.fromCharCode(31))) {
         arr = text.split(String.fromCharCode(31));
@@ -196,7 +196,7 @@ function parse_control(text) {
             elem--;
             content += "</span>";
         }
-        text = content;
+        text = content.trim();
     }
     if (text.includes(String.fromCharCode(15))) {
         arr = text.split(String.fromCharCode(15));
@@ -208,22 +208,28 @@ function parse_control(text) {
                 elem--;
             }
         }
-        text = content;
+        text = content.trim();
     }
     return text;
 }
 function add_nick(channel, nick, host, color) {
     var elem = null;
+    var voice = false;
     cw.forEach(async (elem) => {
         if (elem.page.toLowerCase() === channel.toLowerCase()) {
-            if(elem.nicks.length === 0) {
+            if (elem.nicks.length === 0) {
                 color = user_color;
+            }
+            if (nick.startsWith("+@")) {
+                nick = nick.substring(1);
+                voice = true;
             }
             if (!elem.nicks.some(e => e.nick === nick)) {
                 elem.nicks.push({
                     nick: nick,
                     host: host,
-                    color: color
+                    color: color,
+                    voice: voice
                 });
             }
         }
@@ -275,12 +281,14 @@ function set_host(channel, nick, host) {
             }
             for (const name of elem.nicks) {
                 var color = name.color;
+                var voice = name.voice;
                 if (name.nick.toLowerCase() === parsed.toLowerCase()) {
                     let i = elem.nicks.findIndex(data => data.nick === parsed);
                     elem.nicks.splice(i, 1, {
                         nick: parsed,
                         host: host,
-                        color: color
+                        color: color,
+                        voice: voice
                     });
                     return;
                 }
@@ -296,6 +304,7 @@ function set_mode(channel, line) {
                 var nick = name.nick;
                 var host = name.host;
                 var color = name.color;
+                var voice = name.voice;
                 var parsed = null;
                 if (line.includes(" ")) {
                     var modes = line.split(" ");
@@ -304,7 +313,8 @@ function set_mode(channel, line) {
                         var add = false;
                         var remove = false;
                         var flag = 0;
-                        var status = "";
+                        var nickname = get_nick(channel, nick);
+                        var status = get_status(channel, nickname);
                         for (let j = 0; j < mode.length; j++) {
                             if (mode[j] === "-") {
                                 remove = true;
@@ -318,28 +328,42 @@ function set_mode(channel, line) {
                                 continue;
                             } else if (mode[j] === "o") {
                                 if (add) {
+                                    if (status === "+") {
+                                        voice = true;
+                                    }
                                     status = "@";
                                 } else if (remove) {
-                                    status = "";
+                                    if (voice) {
+                                        status = "+";
+                                    } else {
+                                        status = "";
+                                    }
                                 }
                             } else if (mode[j] === "v") {
                                 if (add) {
-                                    status = "+";
+                                    if (status !== "@") {
+                                        status = "+";
+                                    }
+                                    voice = true;
                                 } else if (remove) {
-                                    status = "";
+                                    if (status !== "@") {
+                                        status = "";
+                                    }
+                                    voice = false;
                                 }
                             } else {
                                 flag++;
                                 continue;
                             }
-                            var nickname = get_nick(channel, nick);
+
                             if (modes[j - flag + 1] === nickname) {
                                 parsed = status + nickname;
                                 let i = elem.nicks.findIndex(data => data.nick === nick);
                                 elem.nicks.splice(i, 1, {
                                     nick: parsed,
                                     host: host,
-                                    color: color
+                                    color: color,
+                                    voice: voice
                                 });
                             }
                         }
@@ -451,12 +475,14 @@ function change_nick(oldnick, newnick) {
             if (name.nick.toLowerCase() === parsed.toLowerCase()) {
                 var host = name.host;
                 var color = name.color;
+                var voice = name.voice;
                 if (is_channel(channel)) {
                     let i = elem.nicks.findIndex(data => data.nick === parsed);
                     elem.nicks.splice(i, 1, {
                         nick: parsed2,
                         host: host,
-                        color: color
+                        color: color,
+                        voice: voice
                     });
                     sort_status(channel);
                     render_userlist(channel);
@@ -802,7 +828,7 @@ function parse_pages(text, pg) {
                     parsed += text;
                 }
             }
-            parsed = parse_control(parsed);
+            parsed = parse_control(parsed.trim());
             if (highlight) {
                 parsed += "</span>";
                 highlight = false;
@@ -847,7 +873,7 @@ function parse_page(text) {
                 parsed += text;
             }
         }
-        parsed = parse_control(parsed);
+        parsed = parse_control(parsed.trim());
         if (highlight) {
             parsed += "</span>";
             highlight = false;
