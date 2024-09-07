@@ -62,7 +62,7 @@ function parse_control(text) {
         for (var i = 1; i < arr.length; i++) {
             var color = "#000000";
             var bgcolor = "#FFFFFF";
-            var code = arr[i].replace(/[^0-9,]/g, "");
+            var code = arr[i].split(" ")[0].replace(/[^0-9,]/g, "");
             if (code.length > 0 && arr[i].startsWith(code)) {
                 var control = new Array();
                 if (code.includes(",")) {
@@ -104,7 +104,7 @@ function parse_control(text) {
                 elem--;
             }
         }
-        text = content.trim();
+        text = content;
     }
     if (text.includes(String.fromCharCode(2))) {
         arr = text.split(String.fromCharCode(2));
@@ -127,7 +127,7 @@ function parse_control(text) {
             content += "</span>";
             elem--;
         }
-        text = content.trim();
+        text = content;
     }
     if (text.includes(String.fromCharCode(29))) {
         arr = text.split(String.fromCharCode(29));
@@ -150,7 +150,7 @@ function parse_control(text) {
             elem--;
             content += "</span>";
         }
-        text = content.trim();
+        text = content;
     }
     if (text.includes(String.fromCharCode(30))) {
         arr = text.split(String.fromCharCode(30));
@@ -173,7 +173,7 @@ function parse_control(text) {
             elem--;
             content += "</span>";
         }
-        text = content.trim();
+        text = content;
     }
     if (text.includes(String.fromCharCode(31))) {
         arr = text.split(String.fromCharCode(31));
@@ -196,7 +196,7 @@ function parse_control(text) {
             elem--;
             content += "</span>";
         }
-        text = content.trim();
+        text = content;
     }
     if (text.includes(String.fromCharCode(15))) {
         arr = text.split(String.fromCharCode(15));
@@ -208,7 +208,7 @@ function parse_control(text) {
                 elem--;
             }
         }
-        text = content.trim();
+        text = content;
     }
     return text;
 }
@@ -802,7 +802,7 @@ function parse_pages(text, pg) {
                     parsed += text;
                 }
             }
-            parsed = parse_control(parsed.trim());
+            parsed = parse_control(parsed);
             if (highlight) {
                 parsed += "</span>";
                 highlight = false;
@@ -847,7 +847,7 @@ function parse_page(text) {
                 parsed += text;
             }
         }
-        parsed = parse_control(parsed.trim());
+        parsed = parse_control(parsed);
         if (highlight) {
             parsed += "</span>";
             highlight = false;
