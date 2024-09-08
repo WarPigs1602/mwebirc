@@ -49,7 +49,7 @@ function get_numerics(text) {
             for (var i = 4; i < arr.length; i++) {
                 parsed += " " + arr[i];
             }
-            set_topic(channel, parsed.trim());
+            set_topic(channel, parsed);
             return null;
         } else if (arr[1] === "333") {
             var channel = arr[3];

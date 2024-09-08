@@ -92,9 +92,10 @@ function parse_control(text) {
                 }
                 arr[i] = arr[i].substring(code.length);
                 content += "<span style=\"color: " + color + "; background-color: " + bgcolor + "\">";
-                content += arr[i];
+                content += end_codes(arr[i], elem);
             } else {
-                content += arr[i];
+                content += "</span>";
+                content += end_codes(arr[i], elem);
             }
         }
         if (cnt > 0) {
@@ -104,7 +105,7 @@ function parse_control(text) {
                 elem--;
             }
         }
-        text = content.trim();
+        text = content;
     }
     if (text.includes(String.fromCharCode(2))) {
         arr = text.split(String.fromCharCode(2));
@@ -114,12 +115,12 @@ function parse_control(text) {
             if (!open) {
                 content += "<span style=\"font-weight: bold;\">";
                 open = true;
-                content += arr[i];
                 elem++;
+                content += end_codes(arr[i], elem);
             } else {
                 elem--;
-                content += arr[i];
                 content += "</span>";
+                content += end_codes(arr[i], elem);
                 open = false;
             }
         }
@@ -127,7 +128,7 @@ function parse_control(text) {
             content += "</span>";
             elem--;
         }
-        text = content.trim();
+        text = content;
     }
     if (text.includes(String.fromCharCode(29))) {
         arr = text.split(String.fromCharCode(29));
@@ -137,12 +138,12 @@ function parse_control(text) {
             if (!open) {
                 content += "<span style=\"font-style: italic;\">";
                 open = true;
-                content += arr[i];
                 elem++;
+                content += end_codes(arr[i], elem);
             } else {
                 elem--;
-                content += arr[i];
                 content += "</span>";
+                content += end_codes(arr[i], elem);
                 open = false;
             }
         }
@@ -150,7 +151,7 @@ function parse_control(text) {
             elem--;
             content += "</span>";
         }
-        text = content.trim();
+        text = content;
     }
     if (text.includes(String.fromCharCode(30))) {
         arr = text.split(String.fromCharCode(30));
@@ -160,12 +161,12 @@ function parse_control(text) {
             if (!open) {
                 content += "<span style=\"text-decoration: line-through;\">";
                 open = true;
-                content += arr[i];
                 elem++;
+                content += end_codes(arr[i], elem);
             } else {
                 elem--;
-                content += arr[i];
                 content += "</span>";
+                content += end_codes(arr[i], elem);
                 open = false;
             }
         }
@@ -173,7 +174,7 @@ function parse_control(text) {
             elem--;
             content += "</span>";
         }
-        text = content.trim();
+        text = content;
     }
     if (text.includes(String.fromCharCode(31))) {
         arr = text.split(String.fromCharCode(31));
@@ -183,12 +184,12 @@ function parse_control(text) {
             if (!open) {
                 content += "<span style=\"text-decoration: underline;\">";
                 open = true;
-                content += arr[i];
                 elem++;
+                content += end_codes(arr[i], elem);
             } else {
                 elem--;
-                content += arr[i];
                 content += "</span>";
+                content += end_codes(arr[i], elem);
                 open = false;
             }
         }
@@ -196,22 +197,32 @@ function parse_control(text) {
             elem--;
             content += "</span>";
         }
-        text = content.trim();
+        text = content;
     }
+    return text;
+}
+
+function end_codes(text, elem) {
+    var content = text;
     if (text.includes(String.fromCharCode(15))) {
         arr = text.split(String.fromCharCode(15));
         content = arr[0];
         for (var j = 1; j < arr.length; j++) {
             while (elem >= 0) {
                 content += "</span>";
-                content += arr[j];
                 elem--;
+                continue;
             }
+            if (elem === -1) {
+                elem = 0;
+            }
+            content += "</span>";
+            content += arr[j];
         }
-        text = content.trim();
     }
-    return text;
+    return content;
 }
+
 function add_nick(channel, nick, host, color) {
     var elem = null;
     var voice = false;
