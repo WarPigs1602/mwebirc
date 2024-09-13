@@ -311,7 +311,7 @@ public class IrcParser {
                             submitMessage("USER %s bleh bleh %s :%s", getIdent(), getIp(), getRealname());
                         } else if (getMode().equalsIgnoreCase("hmac")) {
                             var hmac = new HmacUtils(HMAC_SHA_256, String.valueOf((System.currentTimeMillis() / 1000) / getHmacTemporal())).hmacHex("%s%s".formatted(ident, ip));
-                            submitMessage("USER %s bleh bleh %s %s :%s" , getIdent(), getIp(), hmac, getRealname());
+                            submitMessage("USER %s bleh bleh %s %s :%s", getIdent(), getIp(), hmac, getRealname());
                         } else if (getMode().equalsIgnoreCase(getHostname()) || getMode().isBlank()) {
                             String dispip = null;
                             if (getIp().equalsIgnoreCase(getHostname())) {
@@ -333,14 +333,14 @@ public class IrcParser {
     }
 
     protected void submitMessage(String text, Object... args) {
-        text = text.formatted(args);
-        var o = getOut();
-        o.println(text);
-        System.out.println(text);
-        o.flush();
         try {
+            text = text.formatted(args);
+            var o = getOut();
+            o.println(text);
+            System.out.println(text);
+            o.flush();
             Thread.sleep(100);
-        } catch (InterruptedException ex) {
+        } catch (Exception ex) {
             Logger.getLogger(IrcParser.class.getName()).log(Level.SEVERE, null, ex);
         }
     }

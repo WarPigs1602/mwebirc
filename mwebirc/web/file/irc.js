@@ -17,7 +17,10 @@ function parse_output(text) {
 function get_numerics(text) {
     var arr = text.split(" ");
     var regex = /^[\d]+$/;
-    if (arr[0].toLowerCase() === "error") {
+    if (arr[0].toLowerCase() === "ping") {
+        submitTextMessage("/pong " + arr[1]);
+        return null;
+    } else if (arr[0].toLowerCase() === "error") {
         var parsed = "";
         for (var i = 1; i < arr.length; i++) {
             parsed += " " + arr[i];

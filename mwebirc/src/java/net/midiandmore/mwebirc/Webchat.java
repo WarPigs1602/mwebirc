@@ -146,6 +146,7 @@ public class Webchat {
     public synchronized void onClose(Session session) throws IOException {
         getParser().logout("Page closed!");
         setParser(null);
+        setIrcThread(null);
     }
 
     /**
@@ -158,6 +159,7 @@ public class Webchat {
     public void onError(Session session, Throwable throwable) {
         getParser().logout("Error: " + throwable.getMessage());
         setParser(null);
+        setIrcThread(null);
     }
 
     /**

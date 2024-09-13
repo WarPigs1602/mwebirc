@@ -228,7 +228,7 @@ function tab() {
     var parse = null;
     var content = "";
     if (msg.includes(" ")) {
-        arr = msg.split(" ");
+        arr = msg.split("&nbsp;");
         parse = arr[arr.length - 1];
         arr[arr.length - 1] = parse_tab(parse, false);
         for (const elem of arr) {

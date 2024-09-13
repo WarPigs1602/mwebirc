@@ -119,13 +119,8 @@ public class IrcThread implements Runnable {
             String line = null;
             while ((line = getParser().getIn().readLine()) != null) {
                 var arr = getParser().parseString(line);
-                if (arr[0].equals("PING")) {
-                    p.submitMessage("PONG %s", arr[1]);
-                    p.sendText("Ping? Pong!\n", getSession(), "chat", "");
-                } else {
-                    p.parseCommands(arr, getNick(), getSession());
-                }
-            }
+                p.parseCommands(arr, getNick(), getSession());
+              }
         } catch (IOException ex) {
             p.sendText("Connection to IRC server lost: %s".formatted(ex.getMessage()), getSession(), "chat", "");
         }
