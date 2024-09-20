@@ -90,6 +90,7 @@ html {
     left: 0px;
     right: 3px;
     height: 22px;
+    white-space: pre;
 }
 
 .top_frame    {
@@ -104,12 +105,14 @@ html {
     left: 0px;
     right: 200px;
     bottom: 31px;
+    white-space: pre;
 }
 .right_frame   {
     top:25px;
     right: 3px;
     width: 200px;
     bottom: 31px;
+    white-space: pre;
 }
 .post_frame   {
     left: 3px;

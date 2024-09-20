@@ -35,11 +35,11 @@ const colors = [
 ];
 
 add_page('Status', 'status', true);
-parse_page(get_timestamp() + " mwebirc 1.0<br>\n");
-parse_page(get_timestamp() + " &copy; 2024 by Andreas Pschorn<br>\n");
-parse_page(get_timestamp() + " <a href=\"https://github.com/WarPigs1602/mwebirc\" target=\"_blank\">https://github.com/WarPigs1602/mwebirc</a><br>\n");
-parse_page(get_timestamp() + " Licensed under the MIT License<br>\n");
-parse_page(get_timestamp() + " <span style=\"color: #ff0000\">==</span> Connecting to server, please wait...<br>\n");
+parse_page(get_timestamp() + " mwebirc 1.0\n");
+parse_page(get_timestamp() + " &copy; 2024 by Andreas Pschorn\n");
+parse_page(get_timestamp() + " <a href=\"https://github.com/WarPigs1602/mwebirc\" target=\"_blank\">https://github.com/WarPigs1602/mwebirc</a>\n");
+parse_page(get_timestamp() + " Licensed under the MIT License\n");
+parse_page(get_timestamp() + " <span style=\"color: #ff0000\">==</span> Connecting to server, please wait...\n");
 
 function get_user() {
     return user;
@@ -62,7 +62,7 @@ function parse_control(text) {
         for (var i = 1; i < arr.length; i++) {
             var color = "#000000";
             var bgcolor = "#FFFFFF";
-            var code = arr[i].split(" ")[0].replace(/[^0-9,]/g, "");
+            var code = arr[i].split("")[0] + arr[i].split("")[1] + arr[i].split("")[2] + arr[i].split("")[3] + arr[i].split("")[4].replace(/[^0-9,]/g, "");
             if (code.length > 0 && arr[i].startsWith(code)) {
                 var control = new Array();
                 if (code.includes(",")) {
@@ -91,7 +91,12 @@ function parse_control(text) {
                     }
                 }
                 arr[i] = arr[i].substring(code.length);
-                content += "<span style=\"color: " + color + "; background-color: " + bgcolor + "\">";
+                if (control.length === 1) {
+                    content += "<span style=\"color: " + color + ";\">";
+                }
+                if (control.length === 2) {
+                    content += "<span style=\"color: " + color + "; background-color: " + bgcolor + ";\">";
+                }
                 content += end_codes(arr[i], elem);
             } else {
                 content += "</span>";
@@ -199,7 +204,7 @@ function parse_control(text) {
         }
         text = content;
     }
-    return text;
+    return text.trim();
 }
 
 function end_codes(text, elem) {
@@ -460,7 +465,7 @@ function quit(nick, reason) {
                 if (reason.length !== 0) {
                     reason = " (" + reason + ")";
                 }
-                parse_pages(get_timestamp() + "  <span style=\"color: #ff0000\">==</span> <span style=\"color: " + color + ";\">" + parsed + "</span> has left IRC" + reason + "<br>\n", channel);
+                parse_pages(get_timestamp() + "  <span style=\"color: #ff0000\">==</span> <span style=\"color: " + color + ";\">" + parsed + "</span> has left IRC" + reason + "\n", channel);
             }
         }
     }
@@ -498,7 +503,7 @@ function change_nick(oldnick, newnick) {
                     sort_status(channel);
                     render_userlist(channel);
                 }
-                parse_pages(get_timestamp() + "  <span style=\"color: #ff0000\">==</span> <span style=\"color: " + color + ";\">" + parsed + "</span> has changed his nick to <span style=\"color: " + color + ";\">" + newnick + "</span><br>\n", channel);
+                parse_pages(get_timestamp() + "  <span style=\"color: #ff0000\">==</span> <span style=\"color: " + color + ";\">" + parsed + "</span> has changed his nick to <span style=\"color: " + color + ";\">" + newnick + "</span>\n", channel);
                 break;
             }
         }
@@ -557,7 +562,7 @@ function render_userlist(channel) {
             var doc = document.createElement("ulist_" + content);
             doc.innerHTML = "";
             elem.nicks.forEach(async (nick) => {
-                doc.innerHTML += "<span style=\"color: " + nick.color + ";\">" + nick.nick + "</span><br>\n";
+                doc.innerHTML += "<span style=\"color: " + nick.color + ";\">" + nick.nick + "</span>\n";
             });
             while (right.firstChild) {
                 right.removeChild(right.firstChild);
@@ -653,15 +658,28 @@ function parse_tab(nickname, start) {
     if (!is_channel(aw)) {
         return nickname;
     }
-    for (const elem of cw) {
-        if (elem.page.toLowerCase() === aw.toLowerCase()) {
-            for (const nick of elem.nicks) {
-                var name = get_nick(aw, nick.nick);
-                if (name.toLowerCase().startsWith(nickname.toLowerCase())) {
-                    if (start) {
-                        return name + ": ";
-                    } else {
-                        return name;
+    if (nickname.startsWith("#") || nickname.startsWith("&")) {
+        for (const elem of cw) {
+            if (elem.page.toLowerCase().startsWith(nickname.toLowerCase())) {
+                var name = elem.page;
+                if (start) {
+                    return name + ": ";
+                } else {
+                    return name;
+                }
+            }
+        }
+    } else {
+        for (const elem of cw) {
+            if (elem.page.toLowerCase() === aw.toLowerCase()) {
+                for (const nick of elem.nicks) {
+                    var name = get_nick(aw, nick.nick);
+                    if (name.toLowerCase().startsWith(nickname.toLowerCase())) {
+                        if (start) {
+                            return name + ": ";
+                        } else {
+                            return name;
+                        }
                     }
                 }
             }
@@ -816,9 +834,9 @@ function parse_pages(text, pg) {
                 arr = text.split(" ");
                 for (const part of arr) {
                     if (part.startsWith("http://") || part.startsWith("https://")) {
-                        if (part.endsWith("<br>\n")) {
-                            parsed += parse_url(part.substring(0, part.length - 5));
-                            parsed += "<br>\n";
+                        if (part.endsWith("\n")) {
+                            parsed += parse_url(part);
+                            parsed += "\n";
                         } else {
                             parsed += parse_url(part);
                         }
@@ -829,11 +847,11 @@ function parse_pages(text, pg) {
                 }
             } else {
                 if (text.startsWith("http://") || text.startsWith("https://")) {
-                    if (text.endsWith("<br>\n")) {
-                        parsed += parse_url(text.substring(0, text.length - 5));
+                    if (text.endsWith("\n")) {
+                        parsed += parse_url(text);
                     } else {
                         parsed += parse_url(text);
-                        parsed += "<br>\n";
+                        parsed += "\n";
                     }
                 } else {
                     parsed += text;
@@ -844,7 +862,7 @@ function parse_pages(text, pg) {
                 parsed += "</span>";
                 highlight = false;
             }
-            elem.elem.innerHTML += parsed;
+            elem.elem.innerHTML += parsed.trim() + "\n";
             return;
         }
     }
@@ -861,9 +879,9 @@ function parse_page(text) {
             arr = text.split(" ");
             for (const part of arr) {
                 if (part.startsWith("http://") || part.startsWith("https://")) {
-                    if (part.endsWith("<br>\n")) {
+                    if (part.endsWith("\n")) {
                         parsed += parse_url(part.substring(0, part.length - 5));
-                        parsed += "<br>\n";
+                        parsed += "\n";
                     } else {
                         parsed += parse_url(part);
                     }
@@ -874,11 +892,11 @@ function parse_page(text) {
             }
         } else {
             if (text.startsWith("http://") || text.startsWith("https://")) {
-                if (text.endsWith("<br>\n")) {
+                if (text.endsWith("\n")) {
                     parsed += parse_url(text.substring(0, text.length - 5));
                 } else {
                     parsed += parse_url(text);
-                    parsed += "<br>\n";
+                    parsed += "\n";
                 }
             } else {
                 parsed += text;
@@ -889,7 +907,7 @@ function parse_page(text) {
             parsed += "</span>";
             highlight = false;
         }
-        elem.elem.innerHTML += parsed;
+        elem.elem.innerHTML += parsed.trim() + "\n";
     }
 }
 
@@ -985,7 +1003,7 @@ socket.onmessage = function (messageEvent) {
     var message = msg.message;
     var category = msg.category;
     if (category === "error") {
-        parse_page(get_timestamp() + "  <span style=\"color: #ff0000\">==</span> Error: " + message + "<br>");
+        parse_page(get_timestamp() + "  <span style=\"color: #ff0000\">==</span> Error: " + message + "");
         add_window();
     } else if (category === "chat") {
         if (message === "Ping? Pong!") {
@@ -995,19 +1013,19 @@ socket.onmessage = function (messageEvent) {
             add_window();
         }
     } else {
-        parse_page(get_timestamp() + "  <span style=\"color: #ff0000\">==</span> Unknown category: " + category + "<br>");
+        parse_page(get_timestamp() + "  <span style=\"color: #ff0000\">==</span> Unknown category: " + category + "");
         add_window();
     }
 };
 // callback-Funktion wird gerufen, wenn ein Fehler auftritt
 
 socket.onerror = function (errorEvent) {
-    parse_page(get_timestamp() + "  <span style=\"color: #ff0000\">==</span> Connection to server lost: " + errorEvent.reason + "<br>");
+    parse_page(get_timestamp() + "  <span style=\"color: #ff0000\">==</span> Connection to server lost: " + errorEvent.reason + "");
     add_window();
     scrollToEnd("#chat_window", 100);
 };
 socket.onclose = function (closeEvent) {
-    parse_page(get_timestamp() + "  <span style=\"color: #ff0000\">==</span> Connection to server closed!<br>");
+    parse_page(get_timestamp() + "  <span style=\"color: #ff0000\">==</span> Connection to server closed!");
     add_window();
     scrollToEnd("#chat_window", 100);
 }

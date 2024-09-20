@@ -10,7 +10,7 @@
     <head>
         <title>MidiAndMore.Net - IRC Network</title>
         <meta content="Andreas Pschorn" name="author">
-        <meta content="&copy;%SERVER_YEAR% by %SERVER_VENDOR%" name="description">
+        <meta content="&copy;2024 by Andreas Pschorn" name="description">
         <meta content="MidiAndMore.Net" name="software">
         <meta content="text/html; charset=UTF-8" http-equiv="content-type">
         <link rel="stylesheet" href="file/bootstrap/css/bootstrap.min.css" type="text/css">  

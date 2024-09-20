@@ -1,16 +1,16 @@
 function parse_output(text) {
-    var outp = get_numerics(text.toString().trim());
+    var outp = get_numerics(text.toString());
     if (!outp) {
         return;
     }
     if (aw) {
         for (let i = 0; i < cw.length; i++) {
             if (output.toLowerCase() === cw[i].page.toLowerCase()) {
-                parse_pages(get_timestamp() + " " + outp.trim() + "<br>\n", cw[i].page);
+                parse_pages(get_timestamp() + " " + outp.trim() + "\n", cw[i].page);
             }
         }
     } else {
-        parse_page(get_timestamp() + " " + outp.trim() + "<br>\n");
+        parse_page(get_timestamp() + " " + outp.trim() + "\n");
     }
 }
 
@@ -34,8 +34,8 @@ function get_numerics(text) {
         }
         output = "Status";
         if (parsed.trim() === "*** (mwebirc) Found your hostname." || parsed.trim() === "*** (mwebirc) No hostname found.") {
-            parse_page(get_timestamp() + " <span style=\"color: #ff0000\">==</span> " + parsed.trim() + "<br>\n");
-            parse_page(get_timestamp() + " <span style=\"color: #ff0000\">==</span> Logging in, please wait...<br>\n");
+            parse_page(get_timestamp() + " <span style=\"color: #ff0000\">==</span> " + parsed.trim() + "\n");
+            parse_page(get_timestamp() + " <span style=\"color: #ff0000\">==</span> Logging in, please wait...\n");
             return null;
         }
         return " <span style=\"color: #ff0000\">==</span> " + parsed.trim();
@@ -49,10 +49,8 @@ function get_numerics(text) {
             return null;
         } else if (arr[1] === "332") {
             var channel = arr[3];
-            for (var i = 4; i < arr.length; i++) {
-                parsed += " " + arr[i];
-            }
-            set_topic(channel, parsed);
+            text = text.substring(text.indexOf(channel) + channel.length + 1);
+            set_topic(channel, text);
             return null;
         } else if (arr[1] === "333") {
             var channel = arr[3];
@@ -76,7 +74,7 @@ function get_numerics(text) {
             for (var i = 7; i < arr.length; i++) {
                 parsed += " " + arr[i];
             }
-            return " <span style=\"color: #ff0000\">==</span> <span style=\"font-weight: bold;\">" + nick + "</span> [" + host + "]<br>\n" + get_timestamp() + " <span style=\"color: #ff0000\">==</span> <p style=\"width: 80px; display: inline-block;\">&nbsp;realname</p> : " + parsed.trim();
+            return " <span style=\"color: #ff0000\">==</span> <span style=\"font-weight: bold;\">" + nick + "</span> [" + host + "]\n" + get_timestamp() + " <span style=\"color: #ff0000\">==</span> <p style=\"width: 80px; display: inline-block;\">&nbsp;realname</p> : " + parsed.trim();
         } else
         if (arr[1] === "319") {
             output = aw;
@@ -92,6 +90,10 @@ function get_numerics(text) {
                 parsed += " ";
             }
             return " <span style=\"color: #ff0000\">==</span> <p style=\"width: 80px; display: inline-block;\">&nbsp;channels</p> : " + parsed.trim();
+        } else
+        if (arr[1] === "338") {
+            output = aw;
+            return " <span style=\"color: #ff0000\">==</span> <p style=\"width: 80px; display: inline-block;\">&nbsp;real host</p> : " + arr[4] + "\n" + get_timestamp() + " <span style=\"color: #ff0000\">==</span> <p style=\"width: 80px; display: inline-block;\">&nbsp;real ip</p> : " + arr[5];
         } else
         if (arr[1] === "312") {
             output = aw;
@@ -152,7 +154,7 @@ function get_numerics(text) {
         } else
         if (arr[1] === "001") {
             output = aw;
-            parse_page(get_timestamp() + " <span style=\"color: #ff0000\">==</span> Signed on!<br>\n");
+            parse_page(get_timestamp() + " <span style=\"color: #ff0000\">==</span> Signed on!\n");
         }
         if (arr[1].startsWith("3")) {
             output = aw;
@@ -211,7 +213,7 @@ function get_numerics(text) {
         }
         output = arr[2];
         var status = get_status(arr[2], nick);
-        set_topic(output, parsed.trim());
+        set_topic(output, parsed);
         return " <span style=\"color: #ff0000\">==</span> <span style=\"color: " + color + ";\">" + status + nick + "</span> sets topic: " + parsed.trim();
     } else if (arr[1].toLowerCase() === "quit") {
         var nick = parse_nick(arr[0]);
@@ -231,10 +233,10 @@ function get_numerics(text) {
         var nick = parse_nick(arr[0]);
         if (get_user().toLowerCase() === arr[2].toLowerCase()) {
             output = aw;
-            parse_page(get_timestamp() + " <span style=\"color: #ff0000\">==</span> " + nick + " has you invited to: " + arr[3] + "<br>\n");
+            parse_page(get_timestamp() + " <span style=\"color: #ff0000\">==</span> " + nick + " has you invited to: " + arr[3] + "\n");
         } else {
             output = aw;
-            parse_page(get_timestamp() + " <span style=\"color: #ff0000\">==</span> You have " + arr[2] + " invited to: " + arr[3] + "<br>\n");
+            parse_page(get_timestamp() + " <span style=\"color: #ff0000\">==</span> You have " + arr[2] + " invited to: " + arr[3] + "\n");
         }
         return null;
     } else if (arr[1].toLowerCase() === "join") {
